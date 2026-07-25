@@ -53,4 +53,48 @@ public class ExpenseService {
 
         return expenseRepository.findByUser(user);
     }
+    public void updateExpense(String id, ExpenseRequest request) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        User user = userDetails.getUser();
+
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
+
+        if (!expense.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not allowed to update this expense");
+        }
+
+        expense.setTitle(request.getTitle());
+        expense.setAmount(request.getAmount());
+        expense.setCategory(request.getCategory());
+        expense.setDate(request.getDate());
+        expense.setDescription(request.getDescription());
+
+        expenseRepository.save(expense);
+    }
+    public void deleteExpense(String id) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        User user = userDetails.getUser();
+
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
+
+        if (!expense.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not allowed to delete this expense");
+        }
+
+        expenseRepository.delete(expense);
+    }
 }
