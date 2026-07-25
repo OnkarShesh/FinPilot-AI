@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.onkar.finpilot.repository.UserRepository ;
 import com.onkar.finpilot.entity.User ;
-
+import com.onkar.finpilot.security.CustomUserDetails;
 import java.util.Optional;
 
 @Service
