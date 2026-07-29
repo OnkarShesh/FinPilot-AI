@@ -1,39 +1,41 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080/api/expenses";
+const BASE_URL = "http://localhost:8080/api";
 
 const getToken = () => {
     return localStorage.getItem("token");
 };
 
+const authHeaders = () => ({
+    headers: {
+        Authorization: `Bearer ${getToken()}`
+    }
+});
+
+// Expense APIs
+
 export const getExpenses = () => {
-    return axios.get(BASE_URL, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    });
+    return axios.get(`${BASE_URL}/expenses`, authHeaders());
 };
 
 export const addExpense = (expense) => {
-    return axios.post(BASE_URL, expense, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    });
+    return axios.post(`${BASE_URL}/expenses`, expense, authHeaders());
 };
 
 export const updateExpense = (id, expense) => {
-    return axios.put(`${BASE_URL}/${id}`, expense, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    });
+    return axios.put(`${BASE_URL}/expenses/${id}`, expense, authHeaders());
 };
 
 export const deleteExpense = (id) => {
-    return axios.delete(`${BASE_URL}/${id}`, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    });
+    return axios.delete(`${BASE_URL}/expenses/${id}`, authHeaders());
+};
+
+// Dashboard API
+
+export const getDashboardSummary = () => {
+    return axios.get(`${BASE_URL}/dashboard`, authHeaders());
+};
+
+export const getAIInsights = () => {
+    return axios.get(`${BASE_URL}/ai/analyze`, authHeaders());
 };

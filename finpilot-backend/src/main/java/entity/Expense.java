@@ -5,6 +5,7 @@ import lombok.*;
 import com.onkar.finpilot.entity.User ;
 
 import java.time.LocalDate;
+import com.onkar.finpilot.enums.TransactionType;
 
 @Entity
 @Table(name = "expenses")
@@ -27,6 +28,9 @@ public class Expense {
     private LocalDate date;
 
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

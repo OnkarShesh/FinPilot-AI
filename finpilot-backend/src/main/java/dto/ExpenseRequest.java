@@ -1,6 +1,7 @@
 package com.onkar.finpilot.dto;
 
 import lombok.*;
+import com.onkar.finpilot.enums.TransactionType;
 
 import java.time.LocalDate;
 
@@ -19,4 +20,6 @@ public class ExpenseRequest {
     private LocalDate date;
 
     private String description;
+
+    private TransactionType type;
 }

@@ -36,6 +36,7 @@ public class ExpenseService {
         expense.setCategory(request.getCategory());
         expense.setDate(request.getDate());
         expense.setDescription(request.getDescription());
+        expense.setType(request.getType());
 
         expense.setUser(user);
 
@@ -75,6 +76,7 @@ public class ExpenseService {
         expense.setCategory(request.getCategory());
         expense.setDate(request.getDate());
         expense.setDescription(request.getDescription());
+        expense.setType(request.getType());
 
         expenseRepository.save(expense);
     }
