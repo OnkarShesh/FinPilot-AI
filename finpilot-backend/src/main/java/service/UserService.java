@@ -41,29 +41,31 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         userRepository.save(user);
+        System.out.println("Saved Email = " + user.getEmail());
 
         return "User Registered Successfully";
     }
 
     public LoginResponse login(LoginRequest request) {
 
-        Optional<User> optionalUser =
-                userRepository.findByEmail(request.getEmail());
+        System.out.println("========== LOGIN ==========");
+        System.out.println("Request Email = " + request.getEmail());
+
+        Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
 
         if (optionalUser.isEmpty()) {
-            return null;
+            throw new RuntimeException("USER_NOT_FOUND");
         }
 
         User user = optionalUser.get();
 
-        if (!passwordEncoder.matches(
-                request.getPassword(),
-                user.getPassword())) {
-
-            return null;
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("INVALID_PASSWORD");
         }
 
         String token = jwtService.generateToken(user.getEmail());
+
+        System.out.println("Generated Token = " + token);
 
         return new LoginResponse(
                 token,

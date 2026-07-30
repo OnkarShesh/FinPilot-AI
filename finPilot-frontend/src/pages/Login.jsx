@@ -33,7 +33,10 @@ function Login() {
                     password,
                 }
             );
-
+            if (!response.data || !response.data.token) {
+                toast.error("Please register first or check your password");
+                return;
+            }
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("name", response.data.name);
             localStorage.setItem("email", response.data.email);
@@ -42,7 +45,16 @@ function Login() {
 
             navigate("/dashboard");
         } catch (error) {
-            toast.error("Invalid Email or Password");
+            if (error.response?.status === 404) {
+                toast.error("Account not found. Please register first.");
+            }
+            else if (error.response?.status === 401) {
+                toast.error("Invalid Email or Password");
+            }
+            else {
+                toast.error("Something went wrong");
+            }
+
             console.log(error);
         } finally {
             setLoading(false);

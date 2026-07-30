@@ -37,6 +37,11 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
         String token = authHeader.substring(7);
+        if (token.isBlank() || token.equals("undefined")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String email = jwtService.extractEmail(token);
 
         System.out.println(email);
