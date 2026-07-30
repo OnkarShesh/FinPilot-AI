@@ -6,6 +6,7 @@ import Transactions from "./pages/Transactions";
 import Analytics from "./pages/Analytics";
 import AIAdvisor from "./pages/AIAdvisor";
 import MainLayout from "./layouts/MainLayout";
+import Register from "./pages/Register";
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
 
                 <Route path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
                 <Route element={<MainLayout />}>
                     <Route path="/dashboard" element={<Dashboard />} />

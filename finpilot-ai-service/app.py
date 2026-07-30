@@ -21,8 +21,18 @@ def analyze(data: ExpenseAnalysisRequest):
         return json.loads(cleaned)
 
     except Exception as e:
-        print("AI ERROR:", e)   # Terminal me actual error dikhega
+
+        print("AI ERROR:", e)
+
+        error_message = str(e)
+
+        if "RESOURCE_EXHAUSTED" in error_message or "429" in error_message:
+            raise HTTPException(
+                status_code=429,
+                detail="Daily AI request limit reached. Please try again later."
+            )
+
         raise HTTPException(
             status_code=503,
-            detail="AI service temporarily unavailable"
+            detail="AI service is temporarily unavailable."
         )

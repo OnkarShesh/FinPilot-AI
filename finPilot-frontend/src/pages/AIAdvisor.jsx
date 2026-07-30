@@ -24,8 +24,18 @@ function AIAdvisor() {
 
 
     useEffect(() => {
-        fetchAnalysis();
+
         fetchExpenses();
+
+        const cached = localStorage.getItem("aiInsights");
+
+        if (cached) {
+            setAnalysis(JSON.parse(cached));
+            setLoading(false);
+        } else {
+            fetchAnalysis();
+        }
+
     }, []);
 
     const fetchAnalysis = async () => {
@@ -37,9 +47,18 @@ function AIAdvisor() {
             console.log(res.data);
 
             setAnalysis(res.data);
+            localStorage.setItem(
+                "aiInsights",
+                JSON.stringify(res.data)
+            );
         } catch (err) {
             console.error(err);
-            setError("Unable to load AI Insights.");
+
+            setError(
+                err.response?.data?.detail ||
+                "Unable to load AI Insights."
+            );
+
         } finally {
             setLoading(false);
         }

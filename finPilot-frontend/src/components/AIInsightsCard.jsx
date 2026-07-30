@@ -1,5 +1,6 @@
 function AIInsightsCard({ insights }) {
 
+    console.log("AIInsightsCard received:", insights);
     if (!insights) {
 
         return (
@@ -18,6 +19,19 @@ function AIInsightsCard({ insights }) {
 
         );
 
+    }
+    if (insights?.error) {
+        return (
+            <div className="rounded-3xl border border-yellow-500/20 bg-yellow-500/5 p-6">
+                <h2 className="text-lg font-semibold text-yellow-400">
+                    AI Insights Unavailable
+                </h2>
+
+                <p className="mt-3 text-sm text-zinc-400">
+                    {insights.message}
+                </p>
+            </div>
+        );
     }
 
     return (

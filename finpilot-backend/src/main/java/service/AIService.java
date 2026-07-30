@@ -8,6 +8,9 @@ import com.onkar.finpilot.enums.TransactionType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.onkar.finpilot.service.ExpenseService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,11 +55,30 @@ public class AIService {
         request.setIncome(totalIncome);
         request.setExpenses(expenseItems);
 
-        return webClient.post()
-                .uri("/analyze")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(AnalysisResponse.class)
-                .block();
+        try {
+
+            return webClient.post()
+                    .uri("/analyze")
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(AnalysisResponse.class)
+                    .block();
+
+        } catch (WebClientResponseException e) {
+
+            String body = e.getResponseBodyAsString();
+
+            if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
+                throw new ResponseStatusException(
+                        HttpStatus.TOO_MANY_REQUESTS,
+                        "Daily AI request limit reached. Please try again later."
+                );
+            }
+
+            throw new ResponseStatusException(
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    "AI service is temporarily unavailable."
+            );
+        }
     }
 }
