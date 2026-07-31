@@ -11,7 +11,7 @@ public class WebClientConfig {
     public WebClient webClient() {
 
         return WebClient.builder()
-                .baseUrl("http://localhost:8000")
+                .baseUrl("https://finpilot-ai-service.onrender.com")
                 .build();
     }
 }
