@@ -36,3 +36,6 @@ def analyze(data: ExpenseAnalysisRequest):
             status_code=503,
             detail="AI service is temporarily unavailable."
         )
+@app.get("/")
+def health():
+    return {"status": "AI Service Running"}
