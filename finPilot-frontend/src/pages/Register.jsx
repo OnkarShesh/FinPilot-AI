@@ -66,7 +66,7 @@ function Register() {
 
         setLoading(true);
 
-        try {g
+        try {
 
             const response = await axios.post(
                 "https://finpilot-ai-4ygw.onrender.com/api/auth/register",
