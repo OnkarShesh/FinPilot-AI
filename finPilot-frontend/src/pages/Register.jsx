@@ -66,10 +66,10 @@ function Register() {
 
         setLoading(true);
 
-        try {
+        try {g
 
             const response = await axios.post(
-                "http://localhost:8080/api/auth/register",
+                "https://finpilot-ai-4ygw.onrender.com/api/auth/register",
                 {
                     name,
                     email,
