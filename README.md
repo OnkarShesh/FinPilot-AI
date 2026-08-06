@@ -49,7 +49,20 @@ An AI-powered personal finance platform that enables smarter financial decision-
 
 ## 📸 Screenshots
 
-> Dashboard | AI Advisor | Login | Expense Management
+### 🔐 Login
+![Login](screenshots/login.png)
+
+### 📊 Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### 💳 Transactions
+![Transactions](screenshots/transactions.png)
+
+### 📈 Analytics
+![Analytics](screenshots/analytics.png)
+
+### 🤖 AI Advisor
+![AI Advisor](screenshots/ai-advisor.png)
 
 ---
 
