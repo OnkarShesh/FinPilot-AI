@@ -3,12 +3,12 @@ import axios from "axios";
 const getBaseUrl = () => {
     if (typeof window !== "undefined") {
         const host = window.location.hostname;
+        // When running locally in dev, use /api which Vite dev server proxies to http://localhost:8080
         if (host === "localhost" || host === "127.0.0.1" || host.startsWith("192.168.") || host.startsWith("10.") || host.startsWith("172.")) {
             return "/api";
         }
-    }
-    if (import.meta.env.VITE_API_BASE_URL) {
-        return import.meta.env.VITE_API_BASE_URL;
+        // In production (Vercel, custom domain, phone on internet), always use Render backend
+        return "https://finpilot-ai-4ygw.onrender.com/api";
     }
     return "https://finpilot-ai-4ygw.onrender.com/api";
 };
