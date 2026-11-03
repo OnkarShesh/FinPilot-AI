@@ -27,21 +27,21 @@ function StatCard({
     }
 
     return (
-        <Card className="group relative overflow-hidden p-6 transition-all duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl hover:shadow-black/60 bg-zinc-900/70 backdrop-blur-md">
-            <div className="flex items-start justify-between">
+        <Card className="group relative overflow-hidden p-4 sm:p-5 lg:p-6 transition-all duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl hover:shadow-black/60 bg-zinc-900/70 backdrop-blur-md">
+            <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                    <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400 truncate">
                         {title}
                     </p>
 
-                    <h2 className={`mt-3 text-3xl font-extrabold font-mono tracking-tight tabular-nums ${valueColor}`}>
+                    <h2 className={`mt-2 sm:mt-3 text-2xl sm:text-3xl font-extrabold font-mono tracking-tight tabular-nums truncate ${valueColor}`} title={typeof value === 'string' ? value : String(value)}>
                         {value}
                     </h2>
 
                     {trend && (
-                        <p className={`mt-2.5 text-xs font-semibold flex items-center gap-1.5 ${trendColor}`}>
-                            <span className="inline-block h-1.5 w-1.5 rounded-full bg-current opacity-80" />
-                            {trend}
+                        <p className={`mt-2 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 truncate ${trendColor}`}>
+                            <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-80" />
+                            <span className="truncate">{trend}</span>
                         </p>
                     )}
                 </div>
@@ -50,12 +50,15 @@ function StatCard({
                     <div
                         className={`
                             flex
-                            h-12
-                            w-12
+                            h-10
+                            w-10
+                            sm:h-12
+                            sm:w-12
                             shrink-0
                             items-center
                             justify-center
-                            rounded-2xl
+                            rounded-xl
+                            sm:rounded-2xl
                             shadow-md
                             transition-transform
                             duration-300

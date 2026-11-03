@@ -26,6 +26,8 @@ function Input({
                     px-4
                     py-3
                     pr-12
+                    text-base
+                    sm:text-sm
                     text-white
                     placeholder:text-zinc-500
                     transition-all

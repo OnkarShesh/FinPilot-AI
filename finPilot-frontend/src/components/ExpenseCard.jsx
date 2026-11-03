@@ -12,17 +12,17 @@ function ExpenseCard({ expense, handleEdit, handleDelete }) {
 
     return (
         <div
-            className={`group relative overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/60 p-4 sm:p-5 shadow-lg transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900/90 backdrop-blur-sm ${
+            className={`group relative overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/60 p-3.5 sm:p-5 shadow-lg transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900/90 backdrop-blur-sm min-w-0 w-full ${
                 isIncome
                     ? "hover:border-l-4 hover:border-l-emerald-400"
                     : "hover:border-l-4 hover:border-l-rose-400"
             }`}
         >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 min-w-0">
                 {/* Left Info */}
-                <div className="flex items-start gap-3.5">
+                <div className="flex items-start gap-3 min-w-0 flex-1">
                     <div
-                        className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-black text-sm shadow-sm transition-transform duration-200 group-hover:scale-105 ${
+                        className={`mt-0.5 flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl font-black text-xs sm:text-sm shadow-sm transition-transform duration-200 group-hover:scale-105 ${
                             isIncome
                                 ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                                 : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
@@ -30,16 +30,16 @@ function ExpenseCard({ expense, handleEdit, handleDelete }) {
                     >
                         {isIncome ? "↓" : "↑"}
                     </div>
-                    <div>
-                        <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
+                    <div className="min-w-0 flex-1">
+                        <h4 className="text-xs sm:text-sm md:text-base font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug truncate" title={expense.title}>
                             {expense.title}
                         </h4>
-                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                            <span className="rounded-md border border-zinc-700/80 bg-zinc-800/80 px-2 py-0.5 text-zinc-300 font-medium">
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs">
+                            <span className="rounded-md border border-zinc-700/80 bg-zinc-800/80 px-2 py-0.5 text-zinc-300 font-medium truncate max-w-[120px] sm:max-w-none">
                                 {expense.category}
                             </span>
                             <span
-                                className={`rounded-md px-2 py-0.5 font-semibold text-[11px] ${
+                                className={`rounded-md px-1.5 sm:px-2 py-0.5 font-semibold text-[10px] sm:text-[11px] ${
                                     isIncome
                                         ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                                         : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
@@ -47,12 +47,12 @@ function ExpenseCard({ expense, handleEdit, handleDelete }) {
                             >
                                 {isIncome ? "Income" : "Expense"}
                             </span>
-                            <span className="text-zinc-500 flex items-center gap-1 text-[11px]">
-                                <Calendar size={12} /> {formattedDate}
+                            <span className="text-zinc-500 flex items-center gap-1 text-[10px] sm:text-[11px] shrink-0">
+                                <Calendar size={11} /> {formattedDate}
                             </span>
                         </div>
                         {expense.description && (
-                            <p className="mt-1.5 text-xs text-zinc-400 leading-relaxed max-w-md">
+                            <p className="mt-1 text-xs text-zinc-400 leading-relaxed max-w-md truncate">
                                 {expense.description}
                             </p>
                         )}
@@ -60,16 +60,16 @@ function ExpenseCard({ expense, handleEdit, handleDelete }) {
                 </div>
 
                 {/* Right Amount & Actions */}
-                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 border-t sm:border-t-0 border-zinc-800/80 pt-2.5 sm:pt-0">
+                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 border-t sm:border-t-0 border-zinc-800/80 pt-2.5 sm:pt-0 shrink-0">
                     <span
-                        className={`text-lg sm:text-xl font-extrabold font-mono tracking-tight tabular-nums ${
+                        className={`text-sm sm:text-lg md:text-xl font-extrabold font-mono tracking-tight tabular-nums whitespace-nowrap ${
                             isIncome ? "text-emerald-400" : "text-rose-400"
                         }`}
                     >
                         {isIncome ? "+" : "-"}₹{amountVal.toLocaleString("en-IN")}
                     </span>
 
-                    <div className="flex items-center gap-1.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="flex items-center gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
                         {handleEdit && (
                             <button
                                 type="button"

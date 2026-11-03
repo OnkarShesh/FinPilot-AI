@@ -20,27 +20,27 @@ function Topbar({ setIsSidebarOpen }) {
     const initial = name.charAt(0).toUpperCase();
 
     return (
-        <header className="sticky top-0 z-30 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-xl">
-            <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 w-full border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-xl">
+            <div className="flex h-16 items-center justify-between px-3 sm:px-6 lg:px-8">
                 {/* Left: Mobile trigger & Breadcrumb */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     <button
                         onClick={() => setIsSidebarOpen(true)}
-                        className="rounded-xl p-2 text-zinc-400 transition hover:bg-zinc-800 hover:text-white md:hidden cursor-pointer"
+                        className="rounded-xl p-2 text-zinc-400 transition hover:bg-zinc-800 hover:text-white md:hidden cursor-pointer active:scale-95 shrink-0"
                         aria-label="Open navigation menu"
                     >
                         <FiMenu size={22} />
                     </button>
 
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm min-w-0">
                         <span className="text-zinc-500 hidden sm:inline">FinPilot</span>
                         <span className="text-zinc-700 hidden sm:inline">/</span>
-                        <span className="font-bold text-white tracking-wide">{currentTitle}</span>
+                        <span className="font-bold text-white tracking-wide truncate">{currentTitle}</span>
                     </div>
                 </div>
 
                 {/* Right: AI Status Pill & Quick Action & User Profile */}
-                <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                     {/* WhatsApp Copilot Action Pill */}
                     <button
                         onClick={() => {
@@ -50,17 +50,17 @@ function Topbar({ setIsSidebarOpen }) {
                                 navigate("/dashboard#whatsapp");
                             }
                         }}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition-all shadow-sm cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition-all shadow-sm cursor-pointer active:scale-95"
                         title="Open WhatsApp Copilot 24/7 Simulator & Setup"
                     >
                         <FaWhatsapp className="text-sm text-emerald-400" />
                         <span className="hidden sm:inline">WhatsApp Copilot</span>
                     </button>
 
-                    {/* Live AI Status Pill */}
+                    {/* Live AI Status Pill (tablet/desktop) */}
                     <Link
                         to="/advisor"
-                        className="hidden sm:inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-400 hover:bg-teal-500/15 transition-all shadow-sm"
+                        className="hidden md:inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-400 hover:bg-teal-500/15 transition-all shadow-sm"
                     >
                         <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
@@ -72,18 +72,19 @@ function Topbar({ setIsSidebarOpen }) {
                     {/* Quick Add Button */}
                     <Link
                         to="/dashboard#new"
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-1.5 text-xs font-bold text-white shadow-md shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-400 transition cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-white shadow-md shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-400 active:scale-95 transition cursor-pointer"
+                        title="Add New Transaction"
                     >
                         <PlusCircle size={15} />
-                        <span className="hidden xs:inline">Quick Add</span>
+                        <span className="hidden sm:inline">Quick Add</span>
                     </Link>
 
                     {/* Divider */}
                     <div className="h-6 w-px bg-zinc-800 hidden sm:block" />
 
                     {/* User Profile */}
-                    <div className="flex items-center gap-2.5">
-                        <div className="hidden text-right md:block">
+                    <div className="flex items-center gap-2">
+                        <div className="hidden text-right lg:block">
                             <p className="text-xs font-bold text-white leading-tight">
                                 {name}
                             </p>
@@ -92,7 +93,7 @@ function Topbar({ setIsSidebarOpen }) {
                             </p>
                         </div>
 
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-sm font-black text-white shadow-md shadow-emerald-500/20 ring-2 ring-emerald-500/20">
+                        <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-xs sm:text-sm font-black text-white shadow-md shadow-emerald-500/20 ring-2 ring-emerald-500/20 shrink-0">
                             {initial}
                         </div>
                     </div>

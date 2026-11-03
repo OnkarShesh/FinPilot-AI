@@ -112,29 +112,29 @@ function Login() {
                 </div>
 
                 {/* RIGHT LOGIN CARD */}
-                <div className="flex w-full items-center justify-center px-6 py-10 lg:w-1/2">
-                    <Card className="w-full max-w-md p-8 backdrop-blur-xl bg-zinc-900/80 border border-zinc-800 shadow-2xl">
-                        <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                <div className="flex w-full items-center justify-center px-3.5 sm:px-6 py-6 sm:py-10 lg:w-1/2 min-w-0">
+                    <Card className="w-full max-w-md p-5 sm:p-8 backdrop-blur-xl bg-zinc-900/80 border border-zinc-800 shadow-2xl rounded-3xl min-w-0">
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white">
                             Welcome Back 👋
                         </h2>
-                        <p className="mt-1.5 text-xs sm:text-sm text-zinc-400">
+                        <p className="mt-1 text-xs sm:text-sm text-zinc-400">
                             Sign in to continue to your FinPilot workspace.
                         </p>
 
                         {/* Demo Auto-Fill Button */}
-                        <div className="mt-6">
+                        <div className="mt-5 sm:mt-6">
                             <button
                                 type="button"
                                 onClick={handleDemoFill}
-                                className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/10 py-2.5 px-3 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500 transition cursor-pointer"
+                                className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/10 py-2.5 px-3 text-[11px] sm:text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500 active:scale-95 transition cursor-pointer text-center leading-normal"
                             >
-                                ⚡ Log In with WhatsApp Account (onkarshesh16@gmail.com)
+                                ⚡ Auto-Fill WhatsApp Account (onkarshesh16@gmail.com)
                             </button>
                         </div>
 
-                        <div className="mt-6 space-y-4">
+                        <div className="mt-5 sm:mt-6 space-y-4">
                             <div>
-                                <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
+                                <label className="block text-[11px] sm:text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
                                     Email Address
                                 </label>
                                 <Input
@@ -147,7 +147,7 @@ function Login() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
+                                <label className="block text-[11px] sm:text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
                                     Password
                                 </label>
                                 <Input
@@ -173,7 +173,7 @@ function Login() {
                             </Button>
                         </div>
 
-                        <div className="mt-6 text-center text-xs text-zinc-400">
+                        <div className="mt-5 sm:mt-6 text-center text-xs text-zinc-400">
                             Don't have an account?{" "}
                             <Link
                                 to="/register"

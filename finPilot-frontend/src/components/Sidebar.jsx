@@ -85,22 +85,22 @@ function Sidebar({ isOpen, setIsOpen }) {
 
             <aside
                 className={`
-                    fixed top-0 left-0 z-50 flex h-screen w-72 flex-col
-                    border-r border-zinc-800/80 bg-zinc-950/95 backdrop-blur-xl
+                    fixed top-0 left-0 z-50 flex h-screen w-[82vw] max-w-[280px] sm:max-w-xs flex-col
+                    border-r border-zinc-800/80 bg-zinc-950/98 backdrop-blur-xl
                     transition-transform duration-300 ease-in-out
                     md:sticky md:top-0 md:translate-x-0 md:w-64 lg:w-72
                     ${isOpen ? "translate-x-0 shadow-2xl shadow-emerald-500/10" : "-translate-x-full md:translate-x-0"}
                 `}
             >
                 {/* 1. Brand Logo Header */}
-                <div className="flex items-center justify-between border-b border-zinc-800/80 px-6 py-5">
+                <div className="flex items-center justify-between border-b border-zinc-800/80 px-4 sm:px-6 py-4 sm:py-5">
                     <Link
                         to="/dashboard"
                         onClick={closeSidebar}
                         className="group flex items-center gap-3 transition-transform hover:scale-[1.02]"
                     >
                         {/* Glow Logo Mark */}
-                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 font-black text-zinc-950 shadow-lg shadow-emerald-500/25">
+                        <div className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 font-black text-zinc-950 shadow-lg shadow-emerald-500/25 shrink-0">
                             <span className="text-sm font-extrabold tracking-tight">FP</span>
                             <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -108,16 +108,16 @@ function Sidebar({ isOpen, setIsOpen }) {
                             </span>
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
-                                <h1 className="text-lg font-black tracking-tight text-white leading-none">
+                                <h1 className="text-base sm:text-lg font-black tracking-tight text-white leading-none">
                                     Fin<span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Pilot</span>
                                 </h1>
                                 <span className="rounded-md bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.2 text-[9px] font-extrabold text-emerald-400 uppercase tracking-widest">
                                     AI
                                 </span>
                             </div>
-                            <p className="mt-1 text-[11px] font-medium text-zinc-500 tracking-wide">
+                            <p className="mt-1 text-[10px] sm:text-[11px] font-medium text-zinc-500 tracking-wide truncate">
                                 Smart Wealth Copilot
                             </p>
                         </div>
@@ -126,7 +126,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                     {/* Mobile Close Button */}
                     <button
                         onClick={() => setIsOpen(false)}
-                        className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-white md:hidden cursor-pointer transition-colors"
+                        className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white md:hidden cursor-pointer active:scale-95 transition-colors"
                         aria-label="Close sidebar"
                     >
                         <X size={20} />
@@ -168,7 +168,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                                             to={item.path}
                                             onClick={closeSidebar}
                                             className={({ isActive }) =>
-                                                `group relative flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-200 ${
+                                                `group relative flex items-center justify-between rounded-xl px-3 py-2.5 min-h-[44px] text-xs font-semibold transition-all duration-200 ${
                                                     isActive
                                                         ? "bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-transparent border border-emerald-500/30 text-emerald-300 shadow-sm shadow-emerald-950/50"
                                                         : "text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-100"

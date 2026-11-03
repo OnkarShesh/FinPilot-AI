@@ -87,68 +87,68 @@ function Transactions() {
     }, [expenses, search, typeFilter, sortBy]);
 
     return (
-        <div className="space-y-8 max-w-7xl mx-auto">
+        <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto w-full min-w-0">
             <SectionTitle
                 title="Transactions Ledger"
                 subtitle="Search, filter, and audit all recorded financial activities."
             />
 
             {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-                    <div className="flex items-center justify-between text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 sm:p-5">
+                    <div className="flex items-center justify-between text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                         <span>Total Ledger Volume</span>
                         <Layers size={18} className="text-sky-400" />
                     </div>
-                    <h3 className="mt-2 text-3xl font-extrabold text-white">
+                    <h3 className="mt-2 text-2xl sm:text-3xl font-extrabold text-white truncate">
                         {expenses.length} <span className="text-xs font-medium text-zinc-500">records</span>
                     </h3>
                 </div>
 
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-                    <div className="flex items-center justify-between text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 sm:p-5">
+                    <div className="flex items-center justify-between text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                         <span>Total Inflow</span>
                         <ArrowUpRight size={18} className="text-emerald-400" />
                     </div>
-                    <h3 className="mt-2 text-3xl font-extrabold text-emerald-400">
+                    <h3 className="mt-2 text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono truncate">
                         ₹{totalIncome.toLocaleString("en-IN")}
                     </h3>
                 </div>
 
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-                    <div className="flex items-center justify-between text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 sm:p-5">
+                    <div className="flex items-center justify-between text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                         <span>Total Outflow</span>
                         <ArrowDownRight size={18} className="text-rose-400" />
                     </div>
-                    <h3 className="mt-2 text-3xl font-extrabold text-rose-400">
+                    <h3 className="mt-2 text-2xl sm:text-3xl font-extrabold text-rose-400 font-mono truncate">
                         ₹{totalExpense.toLocaleString("en-IN")}
                     </h3>
                 </div>
             </div>
 
             {/* Filter and Search Toolbar */}
-            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 backdrop-blur-sm">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-3 sm:p-4 backdrop-blur-sm min-w-0">
                 {/* Search */}
-                <div className="relative flex-1">
+                <div className="relative flex-1 min-w-0">
                     <Search className="absolute left-3.5 top-3 text-zinc-500" size={18} />
                     <input
                         type="text"
-                        placeholder="Search by title or category (e.g. Salary, Rent, Food)..."
+                        placeholder="Search by title or category..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-700/80 bg-zinc-950/70 pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                        className="w-full rounded-xl border border-zinc-700/80 bg-zinc-950/70 pl-10 pr-4 py-2.5 text-base sm:text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                     />
                 </div>
 
                 {/* Filter Controls */}
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 sm:gap-3">
                     {/* Type Pills */}
-                    <div className="flex rounded-xl bg-zinc-950/80 p-1 border border-zinc-800">
+                    <div className="flex rounded-xl bg-zinc-950/80 p-1 border border-zinc-800 flex-1 sm:flex-initial justify-center">
                         {["ALL", "INCOME", "EXPENSE"].map((t) => (
                             <button
                                 key={t}
                                 onClick={() => setTypeFilter(t)}
-                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${typeFilter === t
+                                className={`px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer flex-1 sm:flex-initial text-center active:scale-95 ${typeFilter === t
                                         ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
                                         : "text-zinc-400 hover:text-white"
                                     }`}
@@ -162,24 +162,24 @@ function Transactions() {
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="rounded-xl border border-zinc-700/80 bg-zinc-950/70 px-3.5 py-2 text-xs font-medium text-white outline-none focus:border-emerald-500"
+                        className="rounded-xl border border-zinc-700/80 bg-zinc-950/70 px-3 py-2 text-xs font-medium text-white outline-none focus:border-emerald-500 shrink-0 [color-scheme:dark]"
                     >
                         <option value="NEWEST">Newest First</option>
                         <option value="OLDEST">Oldest First</option>
-                        <option value="HIGH">Amount: High to Low</option>
-                        <option value="LOW">Amount: Low to High</option>
+                        <option value="HIGH">High to Low</option>
+                        <option value="LOW">Low to High</option>
                     </select>
                 </div>
             </div>
 
             {/* Transactions List */}
             {filteredExpenses.length === 0 ? (
-                <div className="rounded-3xl border border-dashed border-zinc-800 bg-zinc-900/30 p-16 text-center">
-                    <p className="text-zinc-400 font-medium">No matching transactions found.</p>
+                <div className="rounded-3xl border border-dashed border-zinc-800 bg-zinc-900/30 p-10 sm:p-16 text-center">
+                    <p className="text-zinc-400 font-medium text-sm">No matching transactions found.</p>
                     <p className="mt-1 text-xs text-zinc-500">Try modifying your search or filter criteria.</p>
                 </div>
             ) : (
-                <div className="space-y-3">
+                <div className="space-y-3 min-w-0">
                     {filteredExpenses.map((expense) => (
                         <ExpenseCard
                             key={expense.id}

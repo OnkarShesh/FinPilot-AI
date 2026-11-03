@@ -124,18 +124,18 @@ function Register() {
                 </div>
 
                 {/* RIGHT REGISTER CARD */}
-                <div className="flex w-full items-center justify-center px-6 py-10 lg:w-1/2">
-                    <Card className="w-full max-w-md p-8 backdrop-blur-xl bg-zinc-900/80 border border-zinc-800 shadow-2xl my-auto">
-                        <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                <div className="flex w-full items-center justify-center px-3.5 sm:px-6 py-6 sm:py-10 lg:w-1/2 min-w-0">
+                    <Card className="w-full max-w-md p-5 sm:p-8 backdrop-blur-xl bg-zinc-900/80 border border-zinc-800 shadow-2xl my-auto rounded-3xl min-w-0">
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white">
                             Create Account 🚀
                         </h2>
-                        <p className="mt-1.5 text-xs sm:text-sm text-zinc-400">
+                        <p className="mt-1 text-xs sm:text-sm text-zinc-400">
                             Join FinPilot to elevate your financial intelligence.
                         </p>
 
-                        <div className="mt-6 space-y-4">
+                        <div className="mt-5 sm:mt-6 space-y-3.5 sm:space-y-4">
                             <div>
-                                <label className="block text-xs font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                                <label className="block text-[11px] sm:text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
                                     Full Name
                                 </label>
                                 <Input
@@ -148,7 +148,7 @@ function Register() {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                                    <label className="block text-[11px] sm:text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
                                         Email Address
                                     </label>
                                     <Input
@@ -159,7 +159,7 @@ function Register() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                                    <label className="block text-[11px] sm:text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
                                         Mobile (10 digits)
                                     </label>
                                     <Input
@@ -172,7 +172,7 @@ function Register() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                                <label className="block text-[11px] sm:text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
                                     Password
                                 </label>
                                 <Input
@@ -190,7 +190,7 @@ function Register() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                                <label className="block text-[11px] sm:text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">
                                     Confirm Password
                                 </label>
                                 <Input
@@ -215,7 +215,7 @@ function Register() {
                             </Button>
                         </div>
 
-                        <div className="mt-6 text-center text-xs text-zinc-400">
+                        <div className="mt-5 sm:mt-6 text-center text-xs text-zinc-400">
                             Already have an account?{" "}
                             <Link
                                 to="/login"
