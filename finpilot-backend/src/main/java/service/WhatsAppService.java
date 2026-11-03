@@ -102,13 +102,14 @@ public class WhatsAppService {
             if (recipientPhone.length() == 10) {
                 recipientPhone = "91" + recipientPhone;
             }
+            final String finalRecipient = recipientPhone;
 
             String url = "https://graph.facebook.com/v21.0/" + phoneNumberId + "/messages";
             WebClient client = WebClient.create();
 
             Map<String, Object> body = Map.of(
                 "messaging_product", "whatsapp",
-                "to", recipientPhone,
+                "to", finalRecipient,
                 "type", "text",
                 "text", Map.of("body", messageText)
             );
@@ -120,9 +121,10 @@ public class WhatsAppService {
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(String.class)
-                .block();
-
-            System.out.println("WhatsApp message successfully dispatched to: " + recipientPhone);
+                .subscribe(
+                    res -> System.out.println("WhatsApp message successfully dispatched to " + finalRecipient + ": " + res),
+                    err -> System.err.println("Failed to send WhatsApp message via Meta Cloud API: " + err.getMessage())
+                );
         } catch (Exception e) {
             System.err.println("Failed to send WhatsApp message via Meta Cloud API: " + e.getMessage());
         }
