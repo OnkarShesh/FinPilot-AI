@@ -72,7 +72,10 @@ An AI-powered personal finance platform that enables smarter financial decision-
 git clone https://github.com/OnkarShesh/FinPilot-AI.git
 ```
 
-Start:
+### ⚡ 1-Click Launch (Windows)
+Double-click `start.bat` (or use the **FinPilot AI** shortcut on your Desktop).
+
+### Manual Launch:
 
 - Frontend → `npm install && npm run dev`
 - Backend → `mvn spring-boot:run`

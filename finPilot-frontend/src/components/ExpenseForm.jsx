@@ -1,3 +1,5 @@
+import { PlusCircle, Edit3, X, IndianRupee, Tag, Calendar, FileText } from "lucide-react";
+
 function ExpenseForm({
     title,
     setTitle,
@@ -14,339 +16,204 @@ function ExpenseForm({
     editingId,
     handleAddExpense,
     handleUpdateExpense,
+    clearForm,
 }) {
+    const isIncome = type === "INCOME";
+
+    const expenseCategories = [
+        "Food",
+        "Rent",
+        "Bills",
+        "Shopping",
+        "Travel",
+        "Entertainment",
+        "Health",
+        "Other"
+    ];
+
+    const incomeCategories = [
+        "Salary",
+        "Freelance",
+        "Investment",
+        "Business",
+        "Bonus",
+        "Other"
+    ];
+
+    const currentCategories = isIncome ? incomeCategories : expenseCategories;
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (editingId) {
+            handleUpdateExpense();
+        } else {
+            handleAddExpense();
+        }
+    };
 
     return (
-
-        <div className="
-            rounded-3xl
-            border
-            border-zinc-800
-            bg-gradient-to-b
-            from-zinc-900
-            to-zinc-950
-            p-7
-            shadow-2xl
-            lg:p-8
-        ">
-
-            {/* Heading */}
-
-            <div className="mb-8">
-
-                <div className="inline-flex rounded-xl bg-emerald-500/10 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-400">
-
-                    FINPILOT AI
-
+        <div className="rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-900/90 to-zinc-950 p-5 sm:p-6 shadow-2xl backdrop-blur-sm flex flex-col justify-between h-full">
+            <div>
+                {/* Header */}
+                <div className="flex items-center justify-between pb-4 border-b border-zinc-800/80">
+                    <div>
+                        <span className="inline-block rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+                            FinPilot Entry
+                        </span>
+                        <h2 className="mt-1.5 text-lg sm:text-xl font-bold text-white">
+                            {editingId ? "Edit Transaction" : "Quick Add Transaction"}
+                        </h2>
+                    </div>
+                    {clearForm && (
+                        <button
+                            type="button"
+                            onClick={clearForm}
+                            className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition px-2.5 py-1 rounded-lg border border-zinc-700 hover:bg-zinc-800 cursor-pointer"
+                        >
+                            <X size={14} /> {editingId ? "Cancel" : "Clear"}
+                        </button>
+                    )}
                 </div>
 
-                <h2 className="mt-4 text-3xl font-bold tracking-tight text-white">
+                <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
+                    {/* Segmented Type Switcher */}
+                    <div className="grid grid-cols-2 gap-1.5 p-1 bg-zinc-950/80 rounded-2xl border border-zinc-800">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setType("EXPENSE");
+                                if (isIncome && !expenseCategories.includes(category)) setCategory("");
+                            }}
+                            className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                                !isIncome
+                                    ? "bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm"
+                                    : "text-zinc-400 hover:text-zinc-200"
+                            }`}
+                        >
+                            <span>💸</span> Expense
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setType("INCOME");
+                                if (!isIncome && !incomeCategories.includes(category)) setCategory("");
+                            }}
+                            className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                                isIncome
+                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm"
+                                    : "text-zinc-400 hover:text-zinc-200"
+                            }`}
+                        >
+                            <span>💰</span> Income
+                        </button>
+                    </div>
 
-                    {editingId
-                        ? "Update Transaction"
-                        : "Add New Transaction"}
+                    {/* Title Input */}
+                    <div>
+                        <label className="block text-[11px] font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                            Title / Note
+                        </label>
+                        <input
+                            type="text"
+                            placeholder={isIncome ? "e.g. Monthly Salary, Freelance project" : "e.g. Grocery, Rent, Coffee"}
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="w-full rounded-xl border border-zinc-700/80 bg-zinc-950/70 px-3.5 py-2 text-sm text-white placeholder:text-zinc-500 outline-none transition hover:border-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                        />
+                    </div>
 
-                </h2>
+                    {/* Amount & Date Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label className="block text-[11px] font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                                Amount (₹)
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-2 text-zinc-500 text-sm">₹</span>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    placeholder="0.00"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    className="w-full rounded-xl border border-zinc-700/80 bg-zinc-950/70 pl-7 pr-3 py-2 text-sm font-bold font-mono text-white placeholder:text-zinc-500 outline-none transition hover:border-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 tabular-nums"
+                                />
+                            </div>
+                        </div>
 
-                <p className="mt-2 text-sm leading-6 text-zinc-400">
+                        <div>
+                            <label className="block text-[11px] font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                                Date
+                            </label>
+                            <input
+                                type="date"
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
+                                className="w-full rounded-xl border border-zinc-700/80 bg-zinc-950/70 px-3 py-2 text-sm text-white outline-none transition hover:border-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 [color-scheme:dark]"
+                            />
+                        </div>
+                    </div>
 
-                    Record every income and expense to keep your financial
-                    insights accurate.
+                    {/* Category Preset Pills */}
+                    <div>
+                        <label className="block text-[11px] font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                            Category
+                        </label>
+                        <div className="flex flex-wrap gap-1.5">
+                            {currentCategories.map((cat) => (
+                                <button
+                                    key={cat}
+                                    type="button"
+                                    onClick={() => setCategory(cat)}
+                                    className={`px-2.5 py-1 text-xs rounded-lg font-medium transition cursor-pointer border ${
+                                        category === cat
+                                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/50"
+                                            : "bg-zinc-800/60 text-zinc-400 border-zinc-700/60 hover:border-zinc-600 hover:text-white"
+                                    }`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
-                </p>
+                    {/* Description (Optional) */}
+                    <div>
+                        <label className="block text-[11px] font-semibold text-zinc-400 mb-1 uppercase tracking-wider">
+                            Description (Optional)
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Additional details..."
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="w-full rounded-xl border border-zinc-700/80 bg-zinc-950/70 px-3.5 py-1.5 text-xs text-white placeholder:text-zinc-500 outline-none transition hover:border-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                        />
+                    </div>
 
-            </div>
-
-            {/* Title */}
-
-            <div className="mb-6">
-
-                <label className="mb-2 block text-sm font-medium text-zinc-300">
-
-                    Transaction Title
-
-                </label>
-
-                <input
-                    type="text"
-                    placeholder="Netflix Subscription"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="
-                        w-full
-                        rounded-2xl
-                        border
-                        border-zinc-700
-                        bg-zinc-900
-                        px-4
-                        py-3.5
-                        text-white
-                        placeholder:text-zinc-500
-                        outline-none
-                        transition-all
-                        duration-300
-                        hover:border-zinc-500
-                        focus:border-emerald-500
-                        focus:ring-2
-                        focus:ring-emerald-500/20
-                    "
-                />
-
-            </div>
-
-            {/* Amount + Category */}
-
-            <div className="mb-6 grid grid-cols-1 gap-5 md:grid-cols-2">
-
-                <div>
-
-                    <label className="mb-2 block text-sm font-medium text-zinc-300">
-
-                        Amount
-
-                    </label>
-
-                    <input
-                        type="number"
-                        placeholder="₹ 5000"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        className="
-                            w-full
-                            rounded-2xl
-                            border
-                            border-zinc-700
-                            bg-zinc-900
-                            px-4
-                            py-3.5
-                            text-white
-                            placeholder:text-zinc-500
-                            outline-none
-                            transition-all
-                            duration-300
-                            hover:border-zinc-500
-                            focus:border-emerald-500
-                            focus:ring-2
-                            focus:ring-emerald-500/20
-                        "
-                    />
-
-                </div>
-
-                <div>
-
-                    <label className="mb-2 block text-sm font-medium text-zinc-300">
-
-                        Category
-
-                    </label>
-
-                    <select
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        className="
-                            w-full
-                            rounded-2xl
-                            border
-                            border-zinc-700
-                            bg-zinc-900
-                            px-4
-                            py-3.5
-                            text-white
-                            outline-none
-                            transition-all
-                            duration-300
-                            hover:border-zinc-500
-                            focus:border-emerald-500
-                            focus:ring-2
-                            focus:ring-emerald-500/20
-                        "
+                    {/* Submit Button */}
+                    <button
+                        type="submit"
+                        className={`w-full mt-2 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-200 cursor-pointer shadow-lg active:scale-[0.98] active:brightness-95 ${
+                            isIncome
+                                ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-500/20"
+                                : "bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white shadow-rose-500/20"
+                        }`}
                     >
-
-                        <option value="">Select Category</option>
-
-                        <option value="Food">🍔 Food</option>
-                        <option value="Travel">✈️ Travel</option>
-                        <option value="Shopping">🛒 Shopping</option>
-                        <option value="Bills">💡 Bills</option>
-                        <option value="Entertainment">🎬 Entertainment</option>
-                        <option value="Health">🏥 Health</option>
-                        <option value="Salary">💰 Salary</option>
-                        <option value="Other">📦 Other</option>
-
-                    </select>
-
-                </div>
-
+                        {editingId ? (
+                            <>
+                                <Edit3 size={15} /> Save Changes
+                            </>
+                        ) : (
+                            <>
+                                <PlusCircle size={15} /> {isIncome ? "Record Income" : "Add Expense"}
+                            </>
+                        )}
+                    </button>
+                </form>
             </div>
-
-            {/* Transaction Type */}
-
-            <div className="mb-6">
-
-                <label className="mb-2 block text-sm font-medium text-zinc-300">
-
-                    Transaction Type
-
-                </label>
-
-                <select
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    className="
-                        w-full
-                        rounded-2xl
-                        border
-                        border-zinc-700
-                        bg-zinc-900
-                        px-4
-                        py-3.5
-                        text-white
-                        outline-none
-                        transition-all
-                        duration-300
-                        hover:border-zinc-500
-                        focus:border-emerald-500
-                        focus:ring-2
-                        focus:ring-emerald-500/20
-                    "
-                >
-
-                    <option value="EXPENSE">
-                        💸 Expense
-                    </option>
-
-                    <option value="INCOME">
-                        💰 Income
-                    </option>
-
-                </select>
-
-            </div>
-
-            {/* Date */}
-
-            <div className="mb-6">
-
-                <label className="mb-2 block text-sm font-medium text-zinc-300">
-                    Date
-                </label>
-
-                <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="
-            w-full
-            rounded-2xl
-            border
-            border-zinc-700
-            bg-zinc-900
-            px-4
-            py-3.5
-            text-white
-            outline-none
-            transition-all
-            duration-300
-            hover:border-zinc-500
-            focus:border-emerald-500
-            focus:ring-2
-            focus:ring-emerald-500/20
-        "
-                />
-
-            </div>
-
-            {/* Description */}
-
-            <div className="mb-8">
-
-                <label className="mb-2 block text-sm font-medium text-zinc-300">
-                    Description
-                </label>
-
-                <textarea
-                    rows={4}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Add some notes about this transaction..."
-                    className="
-            w-full
-            resize-none
-            rounded-2xl
-            border
-            border-zinc-700
-            bg-zinc-900
-            px-4
-            py-3.5
-            text-white
-            placeholder:text-zinc-500
-            outline-none
-            transition-all
-            duration-300
-            hover:border-zinc-500
-            focus:border-emerald-500
-            focus:ring-2
-            focus:ring-emerald-500/20
-        "
-                />
-
-            </div>
-
-            {/* Button */}
-
-            <button
-                onClick={
-                    editingId
-                        ? handleUpdateExpense
-                        : handleAddExpense
-                }
-                className="
-        group
-        flex
-        w-full
-        items-center
-        justify-center
-        rounded-2xl
-        bg-gradient-to-r
-        from-emerald-500
-        to-green-600
-        px-6
-        py-4
-        text-base
-        font-semibold
-        text-white
-        shadow-lg
-        shadow-emerald-500/20
-        transition-all
-        duration-300
-        hover:scale-[1.02]
-        hover:shadow-emerald-500/40
-        active:scale-95
-    "
-            >
-
-                {editingId
-                    ? "✓ Update Transaction"
-                    : "+ Add Transaction"}
-
-            </button>
-
-            <div className="mt-6 border-t border-zinc-800 pt-5">
-
-                <p className="text-center text-xs text-zinc-500">
-
-                    Your transactions are securely stored and used to generate
-                    AI-powered financial insights.
-
-                </p>
-
-            </div>
-
         </div>
-
     );
-
 }
 
 export default ExpenseForm;

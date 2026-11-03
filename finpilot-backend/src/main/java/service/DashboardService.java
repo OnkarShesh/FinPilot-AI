@@ -1,44 +1,37 @@
 package com.onkar.finpilot.service;
 
 import com.onkar.finpilot.dto.DashboardResponse;
-import com.onkar.finpilot.entity.Expense;
+import com.onkar.finpilot.entity.User;
 import com.onkar.finpilot.enums.TransactionType;
+import com.onkar.finpilot.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
-import com.onkar.finpilot.service.ExpenseService;
-import java.util.List;
+
+import java.math.BigDecimal;
 
 @Service
 public class DashboardService {
 
+    private final ExpenseRepository expenseRepository;
     private final ExpenseService expenseService;
 
-    public DashboardService(ExpenseService expenseService) {
+    public DashboardService(ExpenseRepository expenseRepository, ExpenseService expenseService) {
+        this.expenseRepository = expenseRepository;
         this.expenseService = expenseService;
     }
 
     public DashboardResponse getDashboardSummary() {
+        User user = expenseService.getCurrentUser();
 
-        List<Expense> transactions = expenseService.getAllExpenses();
-
-        double totalIncome = 0.0;
-        double totalExpense = 0.0;
-
-        for (Expense transaction : transactions) {
-
-            if (transaction.getType() == TransactionType.INCOME) {
-                totalIncome += transaction.getAmount();
-            } else {
-                totalExpense += transaction.getAmount();
-            }
-        }
-
-        double savings = totalIncome - totalExpense;
+        BigDecimal totalIncome = expenseRepository.sumAmountByUserAndType(user, TransactionType.INCOME);
+        BigDecimal totalExpense = expenseRepository.sumAmountByUserAndType(user, TransactionType.EXPENSE);
+        BigDecimal savings = totalIncome.subtract(totalExpense);
+        long totalTransactions = expenseRepository.countByUser(user);
 
         return new DashboardResponse(
                 totalIncome,
                 totalExpense,
                 savings,
-                transactions.size()
+                totalTransactions
         );
     }
 }

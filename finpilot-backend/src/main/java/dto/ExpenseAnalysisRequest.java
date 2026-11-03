@@ -1,35 +1,19 @@
 package com.onkar.finpilot.dto;
 
-import java.util.List;
-import com.onkar.finpilot.dto.ExpenseItem;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExpenseAnalysisRequest {
 
-    private double income;
+    private BigDecimal income;
     private List<ExpenseItem> expenses;
-
-    public ExpenseAnalysisRequest() {
-    }
-
-    public ExpenseAnalysisRequest(double income, List<ExpenseItem> expenses) {
-        this.income = income;
-        this.expenses = expenses;
-    }
-
-    public double getIncome() {
-        return income;
-    }
-
-    public void setIncome(double income) {
-        this.income = income;
-    }
-
-    public List<ExpenseItem> getExpenses() {
-        return expenses;
-    }
-
-    public void setExpenses(List<ExpenseItem> expenses) {
-        this.expenses = expenses;
-    }
 }
-

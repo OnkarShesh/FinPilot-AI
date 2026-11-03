@@ -1,5 +1,19 @@
-# IntelliJ IDEA
+# IntelliJ & VS Code
 .idea/
+.vscode/
+
+# Binaries & Tunnels
+cloudflared.exe
+*.exe
+
+# Local Env
+finpilot-frontend/.env
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
 
 # OS files
 .DS_Store

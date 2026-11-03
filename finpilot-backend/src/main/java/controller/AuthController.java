@@ -4,11 +4,9 @@ import com.onkar.finpilot.dto.LoginRequest;
 import com.onkar.finpilot.dto.LoginResponse;
 import com.onkar.finpilot.dto.RegisterRequest;
 import com.onkar.finpilot.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,30 +19,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
-        return userService.register(request);
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+        String result = userService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-
-        try {
-            LoginResponse response = userService.login(request);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-
-            if (e.getMessage().equals("USER_NOT_FOUND")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Please register first");
-            }
-
-            if (e.getMessage().equals("INVALID_PASSWORD")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Invalid Email or Password");
-            }
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Something went wrong");
-        }
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        LoginResponse response = userService.login(request);
+        return ResponseEntity.ok(response);
     }
 }

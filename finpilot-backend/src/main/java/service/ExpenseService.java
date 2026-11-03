@@ -1,16 +1,17 @@
 package com.onkar.finpilot.service;
 
+import com.onkar.finpilot.dto.ExpenseRequest;
+import com.onkar.finpilot.entity.Expense;
+import com.onkar.finpilot.entity.User;
 import com.onkar.finpilot.repository.ExpenseRepository;
+import com.onkar.finpilot.security.CustomUserDetails;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import com.onkar.finpilot.dto.ExpenseRequest;
-import com.onkar.finpilot.entity.Expense;
-import com.onkar.finpilot.security.CustomUserDetails;
-import com.onkar.finpilot.entity.User;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-
 
 @Service
 public class ExpenseService {
@@ -20,55 +21,43 @@ public class ExpenseService {
     public ExpenseService(ExpenseRepository expenseRepository) {
         this.expenseRepository = expenseRepository;
     }
-    public void addExpense(ExpenseRequest request){
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
 
-        CustomUserDetails userDetails =
-                (CustomUserDetails) authentication.getPrincipal();
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
+        }
+        return ((CustomUserDetails) authentication.getPrincipal()).getUser();
+    }
 
-        User user = userDetails.getUser();
+    public void addExpense(ExpenseRequest request) {
+        User user = getCurrentUser();
 
         Expense expense = new Expense();
-
         expense.setTitle(request.getTitle());
         expense.setAmount(request.getAmount());
         expense.setCategory(request.getCategory());
         expense.setDate(request.getDate());
         expense.setDescription(request.getDescription());
         expense.setType(request.getType());
-
         expense.setUser(user);
 
         expenseRepository.save(expense);
     }
+
     public List<Expense> getAllExpenses() {
-
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        CustomUserDetails userDetails =
-                (CustomUserDetails) authentication.getPrincipal();
-
-        User user = userDetails.getUser();
-
-        return expenseRepository.findByUser(user);
+        User user = getCurrentUser();
+        return expenseRepository.findByUserOrderByDateDesc(user);
     }
+
     public void updateExpense(String id, ExpenseRequest request) {
-
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        CustomUserDetails userDetails =
-                (CustomUserDetails) authentication.getPrincipal();
-
-        User user = userDetails.getUser();
+        User user = getCurrentUser();
 
         Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Expense not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found"));
 
         if (!expense.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not allowed to update this expense");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to update this expense");
         }
 
         expense.setTitle(request.getTitle());
@@ -80,21 +69,15 @@ public class ExpenseService {
 
         expenseRepository.save(expense);
     }
+
     public void deleteExpense(String id) {
-
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        CustomUserDetails userDetails =
-                (CustomUserDetails) authentication.getPrincipal();
-
-        User user = userDetails.getUser();
+        User user = getCurrentUser();
 
         Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Expense not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found"));
 
         if (!expense.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not allowed to delete this expense");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this expense");
         }
 
         expenseRepository.delete(expense);

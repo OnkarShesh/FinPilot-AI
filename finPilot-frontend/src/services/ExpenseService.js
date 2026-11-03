@@ -1,19 +1,61 @@
 import axios from "axios";
 
-const BASE_URL = "https://finpilot-ai-4ygw.onrender.com/api";
-
-const getToken = () => {
-    return localStorage.getItem("token");
+const getBaseUrl = () => {
+    if (typeof window !== "undefined") {
+        const host = window.location.hostname;
+        if (host === "localhost" || host === "127.0.0.1" || host.startsWith("192.168.") || host.startsWith("10.") || host.startsWith("172.")) {
+            return "/api";
+        }
+    }
+    if (import.meta.env.VITE_API_BASE_URL) {
+        return import.meta.env.VITE_API_BASE_URL;
+    }
+    return "https://finpilot-ai-4ygw.onrender.com/api";
 };
 
-const authHeaders = () => ({
-    headers: {
-        Authorization: `Bearer ${getToken()}`
+export const BASE_URL = getBaseUrl();
+
+const getToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token || token === "null" || token === "undefined") return null;
+    return token;
+};
+
+const authHeaders = () => {
+    const token = getToken();
+    return {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+    };
+};
+
+// Response interceptor to handle session expiry / invalid tokens
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            console.warn("Session expired or unauthorized (401/403). Redirecting to login...");
+            localStorage.removeItem("token");
+            localStorage.removeItem("name");
+            localStorage.removeItem("email");
+            localStorage.removeItem("aiInsights");
+            if (typeof window !== "undefined" && !window.location.pathname.includes("/login") && !window.location.pathname.includes("/register")) {
+                window.location.href = "/login";
+            }
+        }
+        return Promise.reject(error);
     }
-});
+);
+
+// Auth APIs
+export const registerUser = (userData) => {
+    return axios.post(`${BASE_URL}/auth/register`, userData);
+};
+
+export const loginUser = (credentials) => {
+    return axios.post(`${BASE_URL}/auth/login`, credentials);
+};
 
 // Expense APIs
-
 export const getExpenses = () => {
     return axios.get(`${BASE_URL}/expenses`, authHeaders());
 };
@@ -31,11 +73,11 @@ export const deleteExpense = (id) => {
 };
 
 // Dashboard API
-
 export const getDashboardSummary = () => {
     return axios.get(`${BASE_URL}/dashboard`, authHeaders());
 };
 
+// AI Insights API
 export const getAIInsights = () => {
     return axios.get(`${BASE_URL}/ai/analyze`, authHeaders());
 };
