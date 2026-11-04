@@ -63,6 +63,7 @@ public class WhatsAppWebhookController {
                         if (changes.isArray()) {
                             for (JsonNode change : changes) {
                                 JsonNode value = change.path("value");
+                                String recipientPhoneId = value.path("metadata").path("phone_number_id").asText(null);
                                 JsonNode messages = value.path("messages");
 
                                 if (messages.isArray() && !messages.isEmpty()) {
@@ -72,11 +73,11 @@ public class WhatsAppWebhookController {
 
                                         if ("text".equalsIgnoreCase(type)) {
                                             String textBody = msg.path("text").path("body").asText();
-                                            System.out.println("[WhatsApp Received Async] From: " + from + " | Body: " + textBody);
-                                            whatsAppService.processIncomingMessage(from, textBody);
+                                            System.out.println("[WhatsApp Received Async] From: " + from + " | To Phone ID: " + recipientPhoneId + " | Body: " + textBody);
+                                            whatsAppService.processIncomingMessage(from, textBody, recipientPhoneId);
                                         } else {
                                             // Non-text message (audio, document, sticker, etc.)
-                                            whatsAppService.sendWhatsAppReply(from, "👋 *FinPilot AI*: Please send your expense or income as text (e.g. _Paid 450 for swiggy_ or _Salary 50000 credited_).");
+                                            whatsAppService.sendWhatsAppReply(from, "👋 *FinPilot AI*: Please send your expense or income as text (e.g. _Paid 450 for swiggy_ or _Salary 50000 credited_).", recipientPhoneId);
                                         }
                                     }
                                 }

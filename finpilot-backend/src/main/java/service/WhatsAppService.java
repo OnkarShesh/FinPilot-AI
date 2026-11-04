@@ -35,6 +35,10 @@ public class WhatsAppService {
     }
 
     public String processIncomingMessage(String rawPhone, String messageText) {
+        return processIncomingMessage(rawPhone, messageText, this.phoneNumberId);
+    }
+
+    public String processIncomingMessage(String rawPhone, String messageText, String targetPhoneId) {
         if (rawPhone == null || messageText == null || messageText.isBlank()) {
             return "Invalid message payload";
         }
@@ -53,7 +57,7 @@ public class WhatsAppService {
         if (userOpt.isEmpty()) {
             String unregisteredReply = "👋 *Welcome to FinPilot AI!*\n\nWe couldn't find an account linked with this mobile number: *" 
                 + phone10 + "*.\n\nPlease register on the web app (http://localhost:5173/register) with your 10-digit mobile number to enable instant WhatsApp tracking!";
-            sendWhatsAppReply(rawPhone, unregisteredReply);
+            sendWhatsAppReply(rawPhone, unregisteredReply, targetPhoneId);
             return unregisteredReply;
         }
 
@@ -87,14 +91,23 @@ public class WhatsAppService {
         }
 
         String reply = parsed.getReplyMessage();
-        sendWhatsAppReply(rawPhone, reply);
+        sendWhatsAppReply(rawPhone, reply, targetPhoneId);
         return reply;
     }
 
     public void sendWhatsAppReply(String toPhone, String messageText) {
-        if (accessToken == null || accessToken.isBlank() || phoneNumberId == null || phoneNumberId.isBlank()) {
+        sendWhatsAppReply(toPhone, messageText, this.phoneNumberId);
+    }
+
+    public void sendWhatsAppReply(String toPhone, String messageText, String targetPhoneId) {
+        if (accessToken == null || accessToken.isBlank()) {
             System.out.println("[WhatsApp Simulation Mode] To: " + toPhone + " | Message:\n" + messageText);
             return;
+        }
+
+        String phoneIdToUse = (targetPhoneId != null && !targetPhoneId.isBlank()) ? targetPhoneId : this.phoneNumberId;
+        if (phoneIdToUse == null || phoneIdToUse.isBlank()) {
+            phoneIdToUse = "1394433873753287";
         }
 
         try {
@@ -104,7 +117,7 @@ public class WhatsAppService {
             }
             final String finalRecipient = recipientPhone;
 
-            String url = "https://graph.facebook.com/v21.0/" + phoneNumberId + "/messages";
+            String url = "https://graph.facebook.com/v21.0/" + phoneIdToUse + "/messages";
             WebClient client = WebClient.create();
 
             Map<String, Object> body = Map.of(
@@ -114,6 +127,7 @@ public class WhatsAppService {
                 "text", Map.of("body", messageText)
             );
 
+            final String primaryPhoneId = phoneIdToUse;
             client.post()
                 .uri(url)
                 .header("Authorization", "Bearer " + accessToken)
@@ -122,8 +136,25 @@ public class WhatsAppService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .subscribe(
-                    res -> System.out.println("WhatsApp message successfully dispatched to " + finalRecipient + ": " + res),
-                    err -> System.err.println("Failed to send WhatsApp message via Meta Cloud API: " + err.getMessage())
+                    res -> System.out.println("WhatsApp message successfully dispatched from " + primaryPhoneId + " to " + finalRecipient + ": " + res),
+                    err -> {
+                        System.err.println("Failed to send WhatsApp message via " + primaryPhoneId + ": " + err.getMessage());
+                        // If primary phone ID (production) failed, attempt fallback dispatch via Sandbox test ID
+                        if (!"1509884052199864".equals(primaryPhoneId)) {
+                            System.out.println("Attempting fallback dispatch via Meta Sandbox Test Phone ID (1509884052199864)...");
+                            client.post()
+                                .uri("https://graph.facebook.com/v21.0/1509884052199864/messages")
+                                .header("Authorization", "Bearer " + accessToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(body)
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .subscribe(
+                                    res2 -> System.out.println("Fallback message dispatched via Sandbox to " + finalRecipient + ": " + res2),
+                                    err2 -> System.err.println("Sandbox fallback dispatch also failed: " + err2.getMessage())
+                                );
+                        }
+                    }
                 );
         } catch (Exception e) {
             System.err.println("Failed to send WhatsApp message via Meta Cloud API: " + e.getMessage());
