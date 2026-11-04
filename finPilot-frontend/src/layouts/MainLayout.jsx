@@ -15,13 +15,13 @@ function MainLayout() {
     }, [navigate]);
 
     return (
-        <div className="flex min-h-screen w-full bg-zinc-950 overflow-x-hidden">
+        <div className="flex h-screen w-full bg-zinc-950 overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 setIsOpen={setIsSidebarOpen}
             />
 
-            <div className="flex flex-1 flex-col min-w-0 w-full overflow-hidden">
+            <div className="flex flex-1 flex-col min-w-0 h-screen w-full overflow-hidden">
                 <Topbar
                     setIsSidebarOpen={setIsSidebarOpen}
                 />

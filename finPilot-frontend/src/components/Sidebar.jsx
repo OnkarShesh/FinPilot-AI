@@ -85,10 +85,10 @@ function Sidebar({ isOpen, setIsOpen }) {
 
             <aside
                 className={`
-                    fixed top-0 left-0 z-50 flex h-screen w-[82vw] max-w-[280px] sm:max-w-xs flex-col
+                    fixed top-0 left-0 z-50 flex h-full w-[82vw] max-w-[280px] sm:max-w-xs flex-col
                     border-r border-zinc-800/80 bg-zinc-950/98 backdrop-blur-xl
-                    transition-transform duration-300 ease-in-out
-                    md:sticky md:top-0 md:translate-x-0 md:w-64 lg:w-72
+                    transition-transform duration-300 ease-in-out md:transition-none
+                    md:static md:top-auto md:left-auto md:z-auto md:h-full md:w-64 lg:w-72 md:shrink-0
                     ${isOpen ? "translate-x-0 shadow-2xl shadow-emerald-500/10" : "-translate-x-full md:translate-x-0"}
                 `}
             >
@@ -97,7 +97,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                     <Link
                         to="/dashboard"
                         onClick={closeSidebar}
-                        className="group flex items-center gap-3 transition-transform hover:scale-[1.02]"
+                        className="group flex items-center gap-3 transition-opacity hover:opacity-90"
                     >
                         {/* Glow Logo Mark */}
                         <div className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 font-black text-zinc-950 shadow-lg shadow-emerald-500/25 shrink-0">
@@ -138,20 +138,20 @@ function Sidebar({ isOpen, setIsOpen }) {
                     <Link
                         to="/dashboard#new"
                         onClick={closeSidebar}
-                        className="group flex w-full items-center justify-between rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent p-3 border border-emerald-500/30 text-xs font-bold text-emerald-300 shadow-sm hover:border-emerald-500/60 hover:from-emerald-500/25 transition-all duration-200"
+                        className="group flex w-full items-center justify-between rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-transparent p-3 border border-emerald-500/30 text-xs font-bold text-emerald-300 shadow-sm hover:border-emerald-500/60 hover:from-emerald-500/25 transition-colors duration-200"
                     >
                         <div className="flex items-center gap-2.5">
-                            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/30 group-hover:scale-105 transition-transform">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/30 transition-colors">
                                 <PlusCircle size={14} className="stroke-[2.5]" />
                             </div>
                             <span>New Transaction</span>
                         </div>
-                        <ChevronRight size={14} className="text-emerald-400/60 group-hover:translate-x-0.5 group-hover:text-emerald-300 transition-transform" />
+                        <ChevronRight size={14} className="text-emerald-400/60 group-hover:text-emerald-300 transition-colors" />
                     </Link>
                 </div>
 
                 {/* 3. Navigation Links (Grouped with Section Titles) */}
-                <nav className="flex-1 overflow-y-auto px-4 py-3 space-y-6 scrollbar-thin scrollbar-thumb-zinc-800">
+                <nav className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3 space-y-6 [scrollbar-gutter:stable]">
                     {navGroups.map((group) => (
                         <div key={group.title} className="space-y-1">
                             <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
@@ -168,10 +168,10 @@ function Sidebar({ isOpen, setIsOpen }) {
                                             to={item.path}
                                             onClick={closeSidebar}
                                             className={({ isActive }) =>
-                                                `group relative flex items-center justify-between rounded-xl px-3 py-2.5 min-h-[44px] text-xs font-semibold transition-all duration-200 ${
+                                                `group relative flex items-center justify-between rounded-xl px-3 py-2.5 min-h-[44px] text-xs font-semibold transition-colors duration-150 ${
                                                     isActive
                                                         ? "bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-transparent border border-emerald-500/30 text-emerald-300 shadow-sm shadow-emerald-950/50"
-                                                        : "text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-100"
+                                                        : "border border-transparent text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-100"
                                                 }`
                                             }
                                         >

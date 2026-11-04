@@ -20,7 +20,7 @@ function Topbar({ setIsSidebarOpen }) {
     const initial = name.charAt(0).toUpperCase();
 
     return (
-        <header className="sticky top-0 z-30 w-full border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 w-full shrink-0 border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-xl">
             <div className="flex h-16 items-center justify-between px-3 sm:px-6 lg:px-8">
                 {/* Left: Mobile trigger & Breadcrumb */}
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
