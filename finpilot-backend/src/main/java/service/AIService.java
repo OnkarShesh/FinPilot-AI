@@ -65,18 +65,28 @@ public class AIService {
     }
 
     public ParsedTransactionResponse parseNaturalLanguage(String text, String todayDate) {
+        // Fast-path: Check if deterministic local parser recognizes Khata or explicit pattern
+        ParsedTransactionResponse localFast = fallbackLocalParse(text, todayDate);
+        if (localFast != null && localFast.isValid() && localFast.isDebt()) {
+            return localFast;
+        }
+
         ParseTransactionRequest request = new ParseTransactionRequest(text, todayDate);
         try {
-            return webClient.post()
+            ParsedTransactionResponse res = webClient.post()
                     .uri("/parse-transaction")
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono(ParsedTransactionResponse.class)
                     .timeout(java.time.Duration.ofSeconds(4))
                     .block();
+            if (res != null && res.isValid()) {
+                return res;
+            }
+            return localFast;
         } catch (Exception e) {
             System.err.println("AI parse-transaction call timed out or failed: " + e.getMessage() + ". Instantly using intelligent local fallback parser.");
-            return fallbackLocalParse(text, todayDate);
+            return localFast;
         }
     }
 

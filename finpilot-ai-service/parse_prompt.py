@@ -48,9 +48,20 @@ Rules:
    - "date": YYYY-MM-DD (defaults to {today_str} unless user mentions "yesterday" or specific date).
    - "reply_message": A neat, professional WhatsApp formatted receipt with bold labels (*Title:*, *Amount:*, *Category:*, *Type:*).
 
+4. Peer-to-peer / Khata debts (e.g. "500 rupam", "-400 rupam", "rupam ko 500", "rupam ne 400 diye", "rahul se 300 mile"):
+   - Set "is_debt": true
+   - "person_name": Name of person capitalized (e.g. "Rupam", "Rahul")
+   - "debt_type": "YOU_GAVE" if money given / positive / "ko diye" / user will get back; "YOU_GOT" if negative / "ne diye" / "se mile" / returned
+   - "amount": positive float amount
+   - "title": "<PersonName> (Khata)"
+   - "category": "Khata"
+
 Output STRICTLY in JSON format with NO markdown fences, matching this structure:
 {{
   "is_valid": true,
+  "is_debt": false,
+  "person_name": null,
+  "debt_type": null,
   "title": "Title of expense/income",
   "amount": 450.0,
   "category": "Food",

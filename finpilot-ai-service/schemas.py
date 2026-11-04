@@ -27,4 +27,7 @@ class ParsedTransactionResponse(BaseModel):
     category: Optional[str] = "Other"
     type: Optional[str] = "EXPENSE"
     date: Optional[str] = None
+    is_debt: Optional[bool] = False
+    person_name: Optional[str] = None
+    debt_type: Optional[str] = None
     reply_message: str
