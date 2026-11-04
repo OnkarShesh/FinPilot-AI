@@ -13,7 +13,11 @@ import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, String> {
 
+    @Query("SELECT e FROM Expense e WHERE e.user = :user ORDER BY e.date DESC, e.createdAt DESC NULLS LAST")
     List<Expense> findByUserOrderByDateDesc(User user);
+
+    @Query("SELECT e FROM Expense e WHERE e.user = :user ORDER BY e.date DESC, e.createdAt DESC NULLS LAST")
+    List<Expense> findByUserOrderByDateDescCreatedAtDesc(User user);
 
     List<Expense> findByUser(User user);
 

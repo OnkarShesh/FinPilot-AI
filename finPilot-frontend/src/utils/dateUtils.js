@@ -38,3 +38,4 @@ export const formatDateIST = (dateVal, createdAt) => {
         year: "numeric",
     });
 };
+

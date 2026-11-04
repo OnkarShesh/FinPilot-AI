@@ -47,7 +47,7 @@ public class ExpenseService {
 
     public List<Expense> getAllExpenses() {
         User user = getCurrentUser();
-        return expenseRepository.findByUserOrderByDateDesc(user);
+        return expenseRepository.findByUserOrderByDateDescCreatedAtDesc(user);
     }
 
     public void updateExpense(String id, ExpenseRequest request) {

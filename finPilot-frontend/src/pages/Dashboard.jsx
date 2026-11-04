@@ -463,7 +463,15 @@ function Dashboard() {
                             </div>
                         ) : (
                             <div className="divide-y divide-zinc-800/60">
-                                {expenses.slice(0, 5).map((expense) => {
+                                {expenses
+                                    .slice()
+                                    .sort((a, b) => {
+                                        const timeB = new Date(b.createdAt || b.date).getTime();
+                                        const timeA = new Date(a.createdAt || a.date).getTime();
+                                        return timeB - timeA;
+                                    })
+                                    .slice(0, 5)
+                                    .map((expense) => {
                                     const isIncome = expense.type === "INCOME";
                                     const formattedDate = formatDateIST(expense.date, expense.createdAt);
                                     const formattedTime = formatTimeIST(expense.createdAt);

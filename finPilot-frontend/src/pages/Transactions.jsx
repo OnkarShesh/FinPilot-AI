@@ -126,10 +126,18 @@ function Transactions() {
         // Sorting
         switch (sortBy) {
             case "NEWEST":
-                data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                data.sort((a, b) => {
+                    const timeB = new Date(b.createdAt || b.date).getTime();
+                    const timeA = new Date(a.createdAt || a.date).getTime();
+                    return timeB - timeA;
+                });
                 break;
             case "OLDEST":
-                data.sort((a, b) => new Date(a.date) - new Date(b.date));
+                data.sort((a, b) => {
+                    const timeA = new Date(a.createdAt || a.date).getTime();
+                    const timeB = new Date(b.createdAt || b.date).getTime();
+                    return timeA - timeB;
+                });
                 break;
             case "HIGH":
                 data.sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0));
