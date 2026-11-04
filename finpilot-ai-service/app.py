@@ -86,11 +86,29 @@ def fallback_python_parse(text: str, today_date: str):
             "reply_message": "👋 *FinPilot AI*: Could not detect an amount. Please specify the amount, e.g. _Paid 450 for lunch_ or _Salary 50000_."
         }
 
-    is_income = any(w in lower for w in ["salary", "credited", "earned", "received", "dividend", "freelance"])
+    income_keywords = [
+        "credit", "credited", "cr", "income", "salary", "stipend", "deposit", "deposited",
+        "received", "receive", "got", "earned", "earning", "dividend", "freelance", "bonus",
+        "cashback", "refund", "refunded", "profit", "allowance", "inflow", "agye", "aagaye",
+        "aaye", "aaya", "aa gaye", "mila", "mili", "mile", "jama", "addd", "added", "account mai",
+        "account me", "account mein", "balance in account"
+    ]
+    expense_keywords = [
+        "debit", "debited", "dr", "spent", "spend", "paid", "kharcha", "kharch",
+        "diya", "diye", "deducted", "cut", "kata", "kate"
+    ]
+
+    has_income = any(re.search(rf"\b{re.escape(w)}\b" if len(w) <= 4 else re.escape(w), lower) for w in income_keywords)
+    if "add" in lower and "address" not in lower:
+        has_income = True
+
+    has_expense = any(re.search(rf"\b{re.escape(w)}\b", lower) for w in expense_keywords)
+
+    is_income = has_income and not has_expense
     tx_type = "INCOME" if is_income else "EXPENSE"
 
     category = "Other"
-    if any(w in lower for w in ["swiggy", "zomato", "pizza", "burger", "dinner", "lunch", "food", "chai", "coffee", "tea", "grocery", "groceries", "blinkit", "zepto"]):
+    if any(w in lower for w in ["swiggy", "zomato", "pizza", "burger", "dinner", "lunch", "food", "chai", "coffee", "tea", "poha", "maggie", "grocery", "groceries", "blinkit", "zepto"]):
         category = "Food"
     elif any(w in lower for w in ["petrol", "diesel", "uber", "ola", "cab", "auto", "metro", "travel", "flight", "bus"]):
         category = "Travel"
@@ -105,13 +123,36 @@ def fallback_python_parse(text: str, today_date: str):
     elif any(w in lower for w in ["doctor", "medicine", "pharmacy", "hospital", "gym"]):
         category = "Health"
     elif is_income:
-        category = "Salary" if "salary" in lower else "Freelance"
+        if "salary" in lower:
+            category = "Salary"
+        elif "bonus" in lower or "cashback" in lower:
+            category = "Bonus"
+        elif "freelance" in lower:
+            category = "Freelance"
+        else:
+            category = "Deposit"
 
-    clean_title = re.sub(r"(?i)(paid|spent|got|received|rs|inr|rupees|₹)", "", text).strip()
+    # Clean title
+    clean_title = re.sub(r"(?i)\b(\d+(?:\.\d+)?)\s*k?\b", "", text)
+    clean_title = re.sub(r"(?i)\b(paid|spent|got|received|rs|inr|rupees|₹|for|on|in|ko|ka|ke|se|mai|me|mein|hai|abhi|account|agye|aagaye|aaye|aaya|mila|mili|mile|addd|added|add|credit|credited|cr|debit|debited|dr)\b", "", clean_title)
+    clean_title = re.sub(r"[^a-zA-Z0-9\s]", " ", clean_title)
+    clean_title = re.sub(r"\s+", " ", clean_title).strip()
+
     if len(clean_title) > 30:
         clean_title = clean_title[:30].strip()
+
     if not clean_title:
-        clean_title = f"{category} {tx_type.capitalize()}"
+        if is_income:
+            if "salary" in lower:
+                clean_title = "Salary"
+            elif "bonus" in lower:
+                clean_title = "Bonus"
+            elif "cashback" in lower or "refund" in lower:
+                clean_title = "Cashback"
+            else:
+                clean_title = "Account Inflow"
+        else:
+            clean_title = "Account Debit" if "debit" in lower else f"{category} Expense"
     else:
         clean_title = clean_title[0].upper() + clean_title[1:]
 
