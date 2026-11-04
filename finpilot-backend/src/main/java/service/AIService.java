@@ -171,8 +171,9 @@ public class AIService {
 
         // Clean and polish title
         String cleanTitle = text
-            .replaceAll("(?i)\\b(\\d+(?:\\.\\d+)?)\\s*k?\\b", "")
-            .replaceAll("(?i)(paid|spent|got|received|rs|inr|rupees|₹|for|on|in|ko|ka|ke|se|mai|me|mein|hai|abhi|account|agye|aagaye|aaye|aaya|mila|mili|mile|addd|added|add|credit|credited|cr|debit|debited|dr)", "")
+            .replaceAll("(?i)\\b(\\d+(?:\\.\\d+)?)\\s*k?\\b", " ")
+            .replaceAll("[₹$]", " ")
+            .replaceAll("(?i)\\b(paid|spent|got|received|rs|inr|rupees|for|on|in|ko|ka|ke|se|mai|me|mein|hai|abhi|account|agye|aagaye|aaye|aaya|mila|mili|mile|addd|added|add|credit|credited|cr|debit|debited|dr)\\b", " ")
             .replaceAll("[^a-zA-Z0-9\\s]", " ")
             .replaceAll("\\s+", " ")
             .trim();

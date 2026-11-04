@@ -133,8 +133,9 @@ def fallback_python_parse(text: str, today_date: str):
             category = "Deposit"
 
     # Clean title
-    clean_title = re.sub(r"(?i)\b(\d+(?:\.\d+)?)\s*k?\b", "", text)
-    clean_title = re.sub(r"(?i)\b(paid|spent|got|received|rs|inr|rupees|₹|for|on|in|ko|ka|ke|se|mai|me|mein|hai|abhi|account|agye|aagaye|aaye|aaya|mila|mili|mile|addd|added|add|credit|credited|cr|debit|debited|dr)\b", "", clean_title)
+    clean_title = re.sub(r"(?i)\b(\d+(?:\.\d+)?)\s*k?\b", " ", text)
+    clean_title = re.sub(r"[₹$]", " ", clean_title)
+    clean_title = re.sub(r"(?i)\b(paid|spent|got|received|rs|inr|rupees|for|on|in|ko|ka|ke|se|mai|me|mein|hai|abhi|account|agye|aagaye|aaye|aaya|mila|mili|mile|addd|added|add|credit|credited|cr|debit|debited|dr)\b", " ", clean_title)
     clean_title = re.sub(r"[^a-zA-Z0-9\s]", " ", clean_title)
     clean_title = re.sub(r"\s+", " ", clean_title).strip()
 
