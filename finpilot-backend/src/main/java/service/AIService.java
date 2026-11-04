@@ -72,9 +72,10 @@ public class AIService {
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono(ParsedTransactionResponse.class)
+                    .timeout(java.time.Duration.ofSeconds(4))
                     .block();
         } catch (Exception e) {
-            System.err.println("Failed to call AI parse-transaction: " + e.getMessage() + ". Using intelligent local fallback parser.");
+            System.err.println("AI parse-transaction call timed out or failed: " + e.getMessage() + ". Instantly using intelligent local fallback parser.");
             return fallbackLocalParse(text, todayDate);
         }
     }
