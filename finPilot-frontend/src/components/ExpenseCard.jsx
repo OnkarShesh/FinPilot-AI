@@ -1,4 +1,5 @@
 import { Edit2, Trash2, Calendar, Clock, Tag, Check, Loader2 } from "lucide-react";
+import { formatDateIST, formatTimeIST } from "../utils/dateUtils";
 
 function ExpenseCard({ 
     expense, 
@@ -8,23 +9,8 @@ function ExpenseCard({
     onToggleSelect = null,
     isDeleting = false 
 }) {
-    const timeSource = expense.createdAt || expense.date;
-    const dateObj = new Date(timeSource);
-
-    const formattedDate = dateObj.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-    });
-
-    const hasExactTime = Boolean(expense.createdAt);
-    const formattedTime = hasExactTime
-        ? dateObj.toLocaleTimeString("en-IN", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-          })
-        : null;
+    const formattedDate = formatDateIST(expense.date, expense.createdAt);
+    const formattedTime = formatTimeIST(expense.createdAt);
 
     const isIncome = expense.type === "INCOME";
     const amountVal = Number(expense.amount || 0);

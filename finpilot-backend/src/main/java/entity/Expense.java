@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onkar.finpilot.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(
@@ -54,26 +53,26 @@ public class Expense {
     private User user;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @PrePersist
     protected void onCreate() {
         if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
+            this.createdAt = Instant.now();
         }
         if (this.updatedAt == null) {
-            this.updatedAt = LocalDateTime.now();
+            this.updatedAt = Instant.now();
         }
         if (this.date == null) {
-            this.date = this.createdAt.toLocalDate();
+            this.date = this.createdAt.atZone(ZoneId.of("Asia/Kolkata")).toLocalDate();
         }
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 }

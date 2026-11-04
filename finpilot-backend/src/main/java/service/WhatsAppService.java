@@ -67,12 +67,12 @@ public class WhatsAppService {
 
         User user = userOpt.get();
 
-        // Calculate exact WhatsApp message time in Indian Standard Time (IST)
-        java.time.LocalDateTime messageDateTime = (messageTimestamp != null && messageTimestamp > 0)
-            ? java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochSecond(messageTimestamp), java.time.ZoneId.of("Asia/Kolkata"))
-            : java.time.LocalDateTime.now(java.time.ZoneId.of("Asia/Kolkata"));
+        // Exact WhatsApp message instant
+        java.time.Instant messageInstant = (messageTimestamp != null && messageTimestamp > 0)
+            ? java.time.Instant.ofEpochSecond(messageTimestamp)
+            : java.time.Instant.now();
 
-        String todayStr = messageDateTime.toLocalDate().toString();
+        String todayStr = messageInstant.atZone(java.time.ZoneId.of("Asia/Kolkata")).toLocalDate().toString();
 
         // Call Gemini NLP
         ParsedTransactionResponse parsed = aiService.parseNaturalLanguage(messageText, todayStr);
@@ -84,13 +84,13 @@ public class WhatsAppService {
             expense.setCategory(parsed.getCategory() != null ? parsed.getCategory() : "Other");
 
             try {
-                expense.setDate(parsed.getDate() != null ? LocalDate.parse(parsed.getDate()) : messageDateTime.toLocalDate());
+                expense.setDate(parsed.getDate() != null ? LocalDate.parse(parsed.getDate()) : messageInstant.atZone(java.time.ZoneId.of("Asia/Kolkata")).toLocalDate());
             } catch (Exception e) {
-                expense.setDate(messageDateTime.toLocalDate());
+                expense.setDate(messageInstant.atZone(java.time.ZoneId.of("Asia/Kolkata")).toLocalDate());
             }
 
-            expense.setCreatedAt(messageDateTime);
-            expense.setUpdatedAt(messageDateTime);
+            expense.setCreatedAt(messageInstant);
+            expense.setUpdatedAt(messageInstant);
             expense.setDescription("Logged via WhatsApp: \"" + messageText + "\"");
 
             TransactionType type = "INCOME".equalsIgnoreCase(parsed.getType()) 

@@ -23,6 +23,7 @@ import AIInsightsCard from "../components/AIInsightsCard";
 import SectionTitle from "../components/ui/SectionTitle";
 import WhatsAppModal from "../components/WhatsAppModal";
 import { FaWhatsapp } from "react-icons/fa";
+import { formatDateIST, formatTimeIST } from "../utils/dateUtils";
 
 import {
     getExpenses,
@@ -464,19 +465,8 @@ function Dashboard() {
                             <div className="divide-y divide-zinc-800/60">
                                 {expenses.slice(0, 5).map((expense) => {
                                     const isIncome = expense.type === "INCOME";
-                                    const timeSource = expense.createdAt || expense.date;
-                                    const dateObj = new Date(timeSource);
-                                    const formattedDate = dateObj.toLocaleDateString("en-IN", {
-                                        day: "numeric",
-                                        month: "short",
-                                    });
-                                    const formattedTime = expense.createdAt
-                                        ? dateObj.toLocaleTimeString("en-IN", {
-                                              hour: "2-digit",
-                                              minute: "2-digit",
-                                              hour12: true,
-                                          })
-                                        : null;
+                                    const formattedDate = formatDateIST(expense.date, expense.createdAt);
+                                    const formattedTime = formatTimeIST(expense.createdAt);
                                     const amountVal = Number(expense.amount || 0);
 
                                     return (
