@@ -86,6 +86,59 @@ def fallback_python_parse(text: str, today_date: str):
             "reply_message": "👋 *FinPilot AI*: Could not detect an amount. Please specify the amount, e.g. _Paid 450 for lunch_ or _Salary 50000_."
         }
 
+    # Check for negative sign or Khata pattern
+    is_negative = bool(re.search(r"-(?:\s*)?\d+", text)) or text.strip().startswith("-")
+    
+    raw_letters = re.sub(r"[₹$]", " ", text)
+    raw_letters = re.sub(r"(?i)\b(\d+(?:\.\d+)?)\s*k?\b", " ", raw_letters)
+    raw_letters = re.sub(r"[^a-zA-Z\s]", " ", raw_letters)
+    raw_letters = re.sub(r"\s+", " ", raw_letters).strip()
+    
+    candidate_name = re.sub(
+        r"(?i)\b(diye|diya|de|dene|dena|mile|mila|mil|lia|liya|liye|lena|lene|wapas|lautaye|bheje|bheja|send|sent|transfer|pay|paid|udhar|udhaari|ko|se|ne|ka|ke|ki|hai|tha|the|account|cash)\b",
+        " ",
+        raw_letters.lower()
+    )
+    candidate_name = re.sub(r"\s+", " ", candidate_name).strip()
+
+    is_expense_word = any(
+        w in candidate_name for w in [
+            "chai", "tea", "coffee", "food", "lunch", "dinner", "breakfast", "nashta", "poha", "samosa", "khana", "maggie",
+            "petrol", "diesel", "cng", "uber", "ola", "cab", "auto", "metro", "travel", "flight", "bus", "train",
+            "shopping", "clothes", "shoes", "amazon", "flipkart", "myntra", "zara", "bill", "recharge", "wifi", "electricity",
+            "water", "gas", "rent", "room", "flat", "pg", "movie", "cinema", "netflix", "hotstar", "party", "doctor", "medicine",
+            "dawai", "hospital", "gym", "grocery", "groceries", "blinkit", "zepto", "swiggy", "zomato", "instamart", "dmart",
+            "salary", "bonus", "cashback", "deposit", "freelance"
+        ]
+    )
+
+    has_debt_word = bool(re.search(r"\b(ko\s+diye|ko\s+diya|ko\s+bheje|ko|se\s+mile|se\s+mila|se\s+liye|ne\s+diye|ne\s+diya|wapas|lautaye|udhar)\b", lower))
+
+    if not is_expense_word and 2 <= len(candidate_name) <= 25 and (is_negative or has_debt_word or len(candidate_name.split()) == 1):
+        debt_type = "YOU_GAVE"
+        if is_negative or re.search(r"\b(wapas|lautaye|returned|received|udhar\s+liya)\b", lower) or re.search(r"\bse\b.*\b(mile|mila|lia|liya|liye|received)\b", lower) or re.search(r"\bne\b.*\b(diye|diya|de|transfer|bheje)\b", lower):
+            debt_type = "YOU_GOT"
+
+        formatted_name = candidate_name[0].upper() + candidate_name[1:]
+        action_text = "Aapne diye (Lena hai)" if debt_type == "YOU_GAVE" else "Usne diye (Received)"
+        return {
+            "is_valid": True,
+            "is_debt": True,
+            "person_name": formatted_name,
+            "debt_type": debt_type,
+            "title": f"{formatted_name} ({'Diye' if debt_type == 'YOU_GAVE' else 'Mile'})",
+            "amount": amount,
+            "category": "Khata",
+            "type": "EXPENSE" if debt_type == "YOU_GAVE" else "INCOME",
+            "date": today_date,
+            "reply_message": (
+                f"🤝 *Khata Entry Recorded!*\n"
+                f"👤 *Person:* {formatted_name}\n"
+                f"💰 *Amount:* ₹{amount:g} ({action_text})\n\n"
+                f"_Updating your Khata ledger live on FinPilot..._"
+            )
+        }
+
     income_keywords = [
         "credit", "credited", "cr", "income", "salary", "stipend", "deposit", "deposited",
         "received", "receive", "got", "earned", "earning", "dividend", "freelance", "bonus",

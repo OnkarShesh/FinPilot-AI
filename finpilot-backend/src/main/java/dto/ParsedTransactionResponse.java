@@ -24,6 +24,15 @@ public class ParsedTransactionResponse {
 
     private String date;
 
+    @JsonProperty("is_debt")
+    private boolean isDebt;
+
+    @JsonProperty("person_name")
+    private String personName;
+
+    @JsonProperty("debt_type")
+    private String debtType; // "YOU_GAVE" or "YOU_GOT"
+
     @JsonProperty("reply_message")
     private String replyMessage;
 }

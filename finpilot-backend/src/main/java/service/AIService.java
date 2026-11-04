@@ -133,6 +133,57 @@ public class AIService {
             return response;
         }
 
+        // Check for Negative Sign (e.g. -400 rupam or rupam -400)
+        boolean isNegative = text.matches("(?s).*-(?:\\s*)?\\d+.*") || text.trim().startsWith("-");
+
+        // Check for Khata (Peer-to-Peer / Friends Debt) pattern
+        // e.g. "500 rupam", "-400 rupam", "rupam 500", "rupam ko 500 diye", "rupam ne 400 diye", "500 diye rahul ko"
+        String rawLetters = text.replaceAll("[₹$]", " ")
+            .replaceAll("(?i)\\b(\\d+(?:\\.\\d+)?)\\s*k?\\b", " ")
+            .replaceAll("[^a-zA-Z\\s]", " ")
+            .replaceAll("\\s+", " ")
+            .trim();
+
+        String candidateName = rawLetters.toLowerCase()
+            .replaceAll("(?i)\\b(diye|diya|de|dene|dena|mile|mila|mil|lia|liya|liye|lena|lene|wapas|lautaye|bheje|bheja|send|sent|transfer|pay|paid|udhar|udhaari|ko|se|ne|ka|ke|ki|hai|tha|the|account|cash)\\b", " ")
+            .replaceAll("\\s+", " ")
+            .trim();
+
+        boolean isExpenseCategoryWord = candidateName.matches(".*\\b(chai|tea|coffee|food|lunch|dinner|breakfast|nashta|poha|samosa|khana|maggie|petrol|diesel|cng|uber|ola|cab|auto|metro|travel|flight|bus|train|shopping|clothes|shoes|amazon|flipkart|myntra|zara|bill|recharge|wifi|electricity|water|gas|rent|room|flat|pg|movie|cinema|netflix|hotstar|party|doctor|medicine|dawai|hospital|gym|grocery|groceries|blinkit|zepto|swiggy|zomato|instamart|dmart|salary|bonus|cashback|deposit|freelance)\\b.*");
+
+        boolean hasExplicitDebtWord = lower.matches(".*\\b(ko\\s+diye|ko\\s+diya|ko\\s+bheje|ko|se\\s+mile|se\\s+mila|se\\s+liye|ne\\s+diye|ne\\s+diya|wapas|lautaye|udhar)\\b.*");
+
+        if (!isExpenseCategoryWord && candidateName.length() >= 2 && candidateName.length() <= 25 &&
+            (isNegative || hasExplicitDebtWord || candidateName.split("\\s+").length == 1)) {
+            
+            String debtType = "YOU_GAVE";
+            if (isNegative || lower.matches(".*\\b(wapas|lautaye|returned|received|udhar\\s+liya)\\b.*")
+                || lower.matches(".*\\bse\\b.*\\b(mile|mila|lia|liya|liye|received)\\b.*")
+                || lower.matches(".*\\bne\\b.*\\b(diye|diya|de|transfer|bheje)\\b.*")) {
+                debtType = "YOU_GOT";
+            }
+
+            String formattedName = Character.toUpperCase(candidateName.charAt(0)) + candidateName.substring(1);
+
+            response.setValid(true);
+            response.setDebt(true);
+            response.setPersonName(formattedName);
+            response.setDebtType(debtType);
+            response.setAmount(amount);
+            response.setDate(todayDate != null ? todayDate : java.time.LocalDate.now().toString());
+            response.setTitle(formattedName + " (" + (debtType.equals("YOU_GAVE") ? "Diye" : "Mile") + ")");
+            response.setCategory("Khata");
+            response.setType(debtType.equals("YOU_GAVE") ? "EXPENSE" : "INCOME");
+
+            String actionText = debtType.equals("YOU_GAVE") ? "Aapne diye (Lena hai)" : "Usne diye (Received)";
+            String receipt = "🤝 *Khata Entry Recorded!*\n"
+                    + "👤 *Person:* " + formattedName + "\n"
+                    + "💰 *Amount:* ₹" + amount + " (" + actionText + ")\n\n"
+                    + "_Updating your Khata ledger live on FinPilot..._";
+            response.setReplyMessage(receipt);
+            return response;
+        }
+
         // Determine Type (Robust Income vs Expense Detection)
         boolean hasIncomeKeyword = 
             lower.matches(".*\\b(credit|credited|cr|income|salary|stipend|deposit|deposited|received|receive|got|earned|earning|dividend|freelance|bonus|cashback|refund|refunded|profit|allowance|inflow)\\b.*")

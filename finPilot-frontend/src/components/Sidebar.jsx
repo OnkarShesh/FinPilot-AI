@@ -10,7 +10,8 @@ import {
     PlusCircle,
     ChevronRight,
     Zap,
-    ShieldCheck
+    ShieldCheck,
+    Users
 } from "lucide-react";
 import { FaLinkedin, FaWhatsapp } from "react-icons/fa";
 
@@ -35,6 +36,13 @@ const navGroups = [
                 path: "/analytics",
                 icon: TrendingUp,
                 description: "Trends & visual stats"
+            },
+            {
+                name: "Khata (Hisab)",
+                path: "/khata",
+                icon: Users,
+                badge: "Live",
+                description: "Friends & loans ledger"
             },
         ]
     },

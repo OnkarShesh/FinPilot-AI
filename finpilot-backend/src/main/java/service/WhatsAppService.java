@@ -1,9 +1,12 @@
 package com.onkar.finpilot.service;
 
 import com.onkar.finpilot.dto.ParsedTransactionResponse;
+import com.onkar.finpilot.entity.DebtPerson;
 import com.onkar.finpilot.entity.Expense;
 import com.onkar.finpilot.entity.User;
+import com.onkar.finpilot.enums.DebtType;
 import com.onkar.finpilot.enums.TransactionType;
+import com.onkar.finpilot.repository.DebtPersonRepository;
 import com.onkar.finpilot.repository.ExpenseRepository;
 import com.onkar.finpilot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +24,8 @@ public class WhatsAppService {
     private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
     private final AIService aiService;
+    private final DebtService debtService;
+    private final DebtPersonRepository debtPersonRepository;
 
     @Value("${whatsapp.access-token:}")
     private String accessToken;
@@ -28,10 +33,16 @@ public class WhatsAppService {
     @Value("${whatsapp.phone-number-id:}")
     private String phoneNumberId;
 
-    public WhatsAppService(UserRepository userRepository, ExpenseRepository expenseRepository, AIService aiService) {
+    public WhatsAppService(UserRepository userRepository, 
+                           ExpenseRepository expenseRepository, 
+                           AIService aiService,
+                           DebtService debtService,
+                           DebtPersonRepository debtPersonRepository) {
         this.userRepository = userRepository;
         this.expenseRepository = expenseRepository;
         this.aiService = aiService;
+        this.debtService = debtService;
+        this.debtPersonRepository = debtPersonRepository;
     }
 
     public String processIncomingMessage(String rawPhone, String messageText) {
@@ -76,6 +87,53 @@ public class WhatsAppService {
 
         // Call Gemini NLP
         ParsedTransactionResponse parsed = aiService.parseNaturalLanguage(messageText, todayStr);
+
+        // Check if message is a Khata (Peer-to-Peer Debt) transaction
+        if (parsed.isValid() && parsed.isDebt() && parsed.getPersonName() != null && !parsed.getPersonName().isBlank()) {
+            DebtType debtType = "YOU_GOT".equalsIgnoreCase(parsed.getDebtType()) 
+                ? DebtType.YOU_GOT 
+                : DebtType.YOU_GAVE;
+
+            LocalDate recordDate;
+            try {
+                recordDate = parsed.getDate() != null ? LocalDate.parse(parsed.getDate()) : messageInstant.atZone(java.time.ZoneId.of("Asia/Kolkata")).toLocalDate();
+            } catch (Exception e) {
+                recordDate = messageInstant.atZone(java.time.ZoneId.of("Asia/Kolkata")).toLocalDate();
+            }
+
+            debtService.recordDebtForUser(
+                user,
+                parsed.getPersonName(),
+                null,
+                rawPhone,
+                parsed.getAmount(),
+                debtType,
+                "Logged via WhatsApp: \"" + messageText + "\"",
+                recordDate,
+                messageInstant
+            );
+
+            DebtPerson person = debtPersonRepository.findByUserAndNameIgnoreCase(user, parsed.getPersonName()).orElse(null);
+            java.math.BigDecimal net = person != null ? debtService.getNetBalanceForPerson(person) : java.math.BigDecimal.ZERO;
+
+            String balanceStatus;
+            if (net.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                balanceStatus = "👉 *Total Hisab: ₹" + net + " (Aapko lena hai)*";
+            } else if (net.compareTo(java.math.BigDecimal.ZERO) < 0) {
+                balanceStatus = "👉 *Total Hisab: ₹" + net.abs() + " (Aapko dena hai)*";
+            } else {
+                balanceStatus = "🤝 *Hisab Poora Hua: ₹0 (Settled)*";
+            }
+
+            String actionText = (debtType == DebtType.YOU_GAVE) ? "Aapne diye (Lena hai)" : "Usne diye (Received)";
+            String reply = "🤝 *Khata Updated: " + parsed.getPersonName() + "*\n"
+                    + "💰 *Recorded:* ₹" + parsed.getAmount() + " (" + actionText + ")\n"
+                    + balanceStatus + "\n\n"
+                    + "_View your full Khata ledger on FinPilot!_";
+
+            sendWhatsAppReply(rawPhone, reply, targetPhoneId);
+            return reply;
+        }
 
         if (parsed.isValid() && parsed.getAmount() != null && parsed.getAmount().doubleValue() > 0) {
             Expense expense = new Expense();

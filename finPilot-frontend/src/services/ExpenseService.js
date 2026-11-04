@@ -90,3 +90,28 @@ export const getDashboardSummary = () => {
 export const getAIInsights = () => {
     return axios.get(`${BASE_URL}/ai/analyze`, authHeaders());
 };
+
+// Khata (Peer-to-Peer / Debt) APIs
+export const getKhataOverview = () => {
+    return axios.get(`${BASE_URL}/debts/overview`, authHeaders());
+};
+
+export const getPersonDebtHistory = (personId) => {
+    return axios.get(`${BASE_URL}/debts/person/${personId}`, authHeaders());
+};
+
+export const addDebtRecord = (record) => {
+    return axios.post(`${BASE_URL}/debts`, record, authHeaders());
+};
+
+export const settlePersonDebt = (personId) => {
+    return axios.post(`${BASE_URL}/debts/settle/${personId}`, {}, authHeaders());
+};
+
+export const deleteDebtPerson = (personId) => {
+    return axios.delete(`${BASE_URL}/debts/person/${personId}`, authHeaders());
+};
+
+export const deleteDebtRecord = (recordId) => {
+    return axios.delete(`${BASE_URL}/debts/${recordId}`, authHeaders());
+};
