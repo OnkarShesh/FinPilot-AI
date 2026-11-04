@@ -51,42 +51,45 @@ public class WhatsAppWebhookController {
      */
     @PostMapping
     public ResponseEntity<String> handleIncomingWebhook(@RequestBody String rawPayload) {
-        try {
-            JsonNode root = objectMapper.readTree(rawPayload);
-            JsonNode entryNode = root.path("entry");
+        // Asynchronously process incoming webhook payload so Meta receives 200 OK in < 10ms
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                JsonNode root = objectMapper.readTree(rawPayload);
+                JsonNode entryNode = root.path("entry");
 
-            if (entryNode.isArray()) {
-                for (JsonNode entry : entryNode) {
-                    JsonNode changes = entry.path("changes");
-                    if (changes.isArray()) {
-                        for (JsonNode change : changes) {
-                            JsonNode value = change.path("value");
-                            JsonNode messages = value.path("messages");
+                if (entryNode.isArray()) {
+                    for (JsonNode entry : entryNode) {
+                        JsonNode changes = entry.path("changes");
+                        if (changes.isArray()) {
+                            for (JsonNode change : changes) {
+                                JsonNode value = change.path("value");
+                                JsonNode messages = value.path("messages");
 
-                            if (messages.isArray() && !messages.isEmpty()) {
-                                for (JsonNode msg : messages) {
-                                    String from = msg.path("from").asText();
-                                    String type = msg.path("type").asText();
+                                if (messages.isArray() && !messages.isEmpty()) {
+                                    for (JsonNode msg : messages) {
+                                        String from = msg.path("from").asText();
+                                        String type = msg.path("type").asText();
 
-                                    if ("text".equalsIgnoreCase(type)) {
-                                        String textBody = msg.path("text").path("body").asText();
-                                        System.out.println("[WhatsApp Received] From: " + from + " | Body: " + textBody);
-                                        whatsAppService.processIncomingMessage(from, textBody);
-                                    } else {
-                                        // Non-text message (audio, document, sticker, etc.)
-                                        whatsAppService.sendWhatsAppReply(from, "👋 *FinPilot AI*: Please send your expense or income as text (e.g. _Paid 450 for swiggy_ or _Salary 50000 credited_).");
+                                        if ("text".equalsIgnoreCase(type)) {
+                                            String textBody = msg.path("text").path("body").asText();
+                                            System.out.println("[WhatsApp Received Async] From: " + from + " | Body: " + textBody);
+                                            whatsAppService.processIncomingMessage(from, textBody);
+                                        } else {
+                                            // Non-text message (audio, document, sticker, etc.)
+                                            whatsAppService.sendWhatsAppReply(from, "👋 *FinPilot AI*: Please send your expense or income as text (e.g. _Paid 450 for swiggy_ or _Salary 50000 credited_).");
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+            } catch (Exception e) {
+                System.err.println("Error processing WhatsApp webhook asynchronously: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("Error processing WhatsApp webhook payload: " + e.getMessage());
-        }
+        });
 
-        // Always return 200 OK to Meta so they don't retry delivery
+        // Always return 200 OK immediately to Meta to prevent webhook timeouts and retry drops
         return ResponseEntity.ok("EVENT_RECEIVED");
     }
 
