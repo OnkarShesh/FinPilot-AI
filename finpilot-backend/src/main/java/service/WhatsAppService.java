@@ -35,10 +35,14 @@ public class WhatsAppService {
     }
 
     public String processIncomingMessage(String rawPhone, String messageText) {
-        return processIncomingMessage(rawPhone, messageText, this.phoneNumberId);
+        return processIncomingMessage(rawPhone, messageText, this.phoneNumberId, null);
     }
 
     public String processIncomingMessage(String rawPhone, String messageText, String targetPhoneId) {
+        return processIncomingMessage(rawPhone, messageText, targetPhoneId, null);
+    }
+
+    public String processIncomingMessage(String rawPhone, String messageText, String targetPhoneId, Long messageTimestamp) {
         if (rawPhone == null || messageText == null || messageText.isBlank()) {
             return "Invalid message payload";
         }
@@ -62,7 +66,13 @@ public class WhatsAppService {
         }
 
         User user = userOpt.get();
-        String todayStr = LocalDate.now().toString();
+
+        // Calculate exact WhatsApp message time in Indian Standard Time (IST)
+        java.time.LocalDateTime messageDateTime = (messageTimestamp != null && messageTimestamp > 0)
+            ? java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochSecond(messageTimestamp), java.time.ZoneId.of("Asia/Kolkata"))
+            : java.time.LocalDateTime.now(java.time.ZoneId.of("Asia/Kolkata"));
+
+        String todayStr = messageDateTime.toLocalDate().toString();
 
         // Call Gemini NLP
         ParsedTransactionResponse parsed = aiService.parseNaturalLanguage(messageText, todayStr);
@@ -74,11 +84,13 @@ public class WhatsAppService {
             expense.setCategory(parsed.getCategory() != null ? parsed.getCategory() : "Other");
 
             try {
-                expense.setDate(parsed.getDate() != null ? LocalDate.parse(parsed.getDate()) : LocalDate.now());
+                expense.setDate(parsed.getDate() != null ? LocalDate.parse(parsed.getDate()) : messageDateTime.toLocalDate());
             } catch (Exception e) {
-                expense.setDate(LocalDate.now());
+                expense.setDate(messageDateTime.toLocalDate());
             }
 
+            expense.setCreatedAt(messageDateTime);
+            expense.setUpdatedAt(messageDateTime);
             expense.setDescription("Logged via WhatsApp: \"" + messageText + "\"");
 
             TransactionType type = "INCOME".equalsIgnoreCase(parsed.getType()) 

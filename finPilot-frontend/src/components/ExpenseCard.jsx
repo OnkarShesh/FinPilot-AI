@@ -1,4 +1,4 @@
-import { Edit2, Trash2, Calendar, Tag, Check, Loader2 } from "lucide-react";
+import { Edit2, Trash2, Calendar, Clock, Tag, Check, Loader2 } from "lucide-react";
 
 function ExpenseCard({ 
     expense, 
@@ -8,11 +8,23 @@ function ExpenseCard({
     onToggleSelect = null,
     isDeleting = false 
 }) {
-    const formattedDate = new Date(expense.date).toLocaleDateString("en-IN", {
+    const timeSource = expense.createdAt || expense.date;
+    const dateObj = new Date(timeSource);
+
+    const formattedDate = dateObj.toLocaleDateString("en-IN", {
         day: "numeric",
         month: "short",
         year: "numeric",
     });
+
+    const hasExactTime = Boolean(expense.createdAt);
+    const formattedTime = hasExactTime
+        ? dateObj.toLocaleTimeString("en-IN", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+          })
+        : null;
 
     const isIncome = expense.type === "INCOME";
     const amountVal = Number(expense.amount || 0);
@@ -82,9 +94,14 @@ function ExpenseCard({
                             >
                                 {isIncome ? "Income" : "Expense"}
                             </span>
-                            <span className="text-zinc-500 flex items-center gap-1 text-[10px] sm:text-[11px] shrink-0">
-                                <Calendar size={11} /> {formattedDate}
+                            <span className="text-zinc-400 flex items-center gap-1 text-[10px] sm:text-[11px] shrink-0 font-medium">
+                                <Calendar size={11} className="text-zinc-500" /> {formattedDate}
                             </span>
+                            {formattedTime && (
+                                <span className="text-zinc-300 flex items-center gap-1 text-[10px] sm:text-[11px] shrink-0 font-medium bg-zinc-800/80 px-1.5 py-0.5 rounded border border-zinc-700/60">
+                                    <Clock size={11} className="text-sky-400" /> {formattedTime}
+                                </span>
+                            )}
                         </div>
                         {expense.description && (
                             <p className="mt-1 text-xs text-zinc-400 leading-relaxed max-w-md truncate">

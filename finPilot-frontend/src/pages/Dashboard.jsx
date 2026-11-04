@@ -13,7 +13,8 @@ import {
     X,
     Edit2,
     Trash2,
-    Calendar
+    Calendar,
+    Clock
 } from "lucide-react";
 
 import ExpenseForm from "../components/ExpenseForm";
@@ -463,10 +464,19 @@ function Dashboard() {
                             <div className="divide-y divide-zinc-800/60">
                                 {expenses.slice(0, 5).map((expense) => {
                                     const isIncome = expense.type === "INCOME";
-                                    const formattedDate = new Date(expense.date).toLocaleDateString("en-IN", {
+                                    const timeSource = expense.createdAt || expense.date;
+                                    const dateObj = new Date(timeSource);
+                                    const formattedDate = dateObj.toLocaleDateString("en-IN", {
                                         day: "numeric",
                                         month: "short",
                                     });
+                                    const formattedTime = expense.createdAt
+                                        ? dateObj.toLocaleTimeString("en-IN", {
+                                              hour: "2-digit",
+                                              minute: "2-digit",
+                                              hour12: true,
+                                          })
+                                        : null;
                                     const amountVal = Number(expense.amount || 0);
 
                                     return (
@@ -489,12 +499,18 @@ function Dashboard() {
                                                     <p className="text-xs sm:text-sm font-bold text-white truncate group-hover:text-emerald-300 transition-colors leading-snug">
                                                         {expense.title}
                                                     </p>
-                                                    <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5">
+                                                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5">
                                                         <span className="text-[9px] sm:text-[10px] font-medium text-zinc-400 rounded bg-zinc-800/80 px-1.5 py-0.2 truncate max-w-[90px] sm:max-w-none">
                                                             {expense.category}
                                                         </span>
-                                                        <span className="text-[9px] sm:text-[10px] text-zinc-500 shrink-0">
-                                                            {formattedDate}
+                                                        <span className="text-[9px] sm:text-[10px] text-zinc-400 flex items-center gap-1 shrink-0 font-medium">
+                                                            <Calendar size={10} className="text-zinc-500" /> {formattedDate}
+                                                            {formattedTime && (
+                                                                <>
+                                                                    <span className="text-zinc-600">•</span>
+                                                                    <Clock size={10} className="text-sky-400" /> {formattedTime}
+                                                                </>
+                                                            )}
                                                         </span>
                                                     </div>
                                                 </div>

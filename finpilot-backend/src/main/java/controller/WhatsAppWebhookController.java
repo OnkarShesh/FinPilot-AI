@@ -70,11 +70,12 @@ public class WhatsAppWebhookController {
                                     for (JsonNode msg : messages) {
                                         String from = msg.path("from").asText();
                                         String type = msg.path("type").asText();
+                                        long msgTimestamp = msg.path("timestamp").asLong(0);
 
                                         if ("text".equalsIgnoreCase(type)) {
                                             String textBody = msg.path("text").path("body").asText();
-                                            System.out.println("[WhatsApp Received Async] From: " + from + " | To Phone ID: " + recipientPhoneId + " | Body: " + textBody);
-                                            whatsAppService.processIncomingMessage(from, textBody, recipientPhoneId);
+                                            System.out.println("[WhatsApp Received Async] From: " + from + " | Timestamp: " + msgTimestamp + " | To Phone ID: " + recipientPhoneId + " | Body: " + textBody);
+                                            whatsAppService.processIncomingMessage(from, textBody, recipientPhoneId, msgTimestamp);
                                         } else {
                                             // Non-text message (audio, document, sticker, etc.)
                                             whatsAppService.sendWhatsAppReply(from, "👋 *FinPilot AI*: Please send your expense or income as text (e.g. _Paid 450 for swiggy_ or _Salary 50000 credited_).", recipientPhoneId);
