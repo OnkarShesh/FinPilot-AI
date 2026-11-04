@@ -49,4 +49,12 @@ public class ExpenseController {
 
         return ResponseEntity.ok("Expense Deleted Successfully");
     }
+
+    @PostMapping("/batch-delete")
+    public ResponseEntity<String> batchDeleteExpenses(@RequestBody List<String> ids) {
+
+        expenseService.batchDeleteExpenses(ids);
+
+        return ResponseEntity.ok("Expenses Deleted Successfully");
+    }
 }

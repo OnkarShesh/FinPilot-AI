@@ -218,14 +218,33 @@ function Dashboard() {
     };
 
     const handleDelete = async (id) => {
+        const previousExpenses = [...expenses];
+        const previousDashboard = { ...dashboardData };
+        const deletedItem = expenses.find((e) => e.id === id);
+
+        // Optimistically remove from UI immediately (0ms delay)
+        setExpenses((prev) => prev.filter((e) => e.id !== id));
+        if (deletedItem) {
+            const val = Number(deletedItem.amount || 0);
+            setDashboardData((prev) => ({
+                ...prev,
+                totalIncome: deletedItem.type === "INCOME" ? Math.max(0, prev.totalIncome - val) : prev.totalIncome,
+                totalExpenses: deletedItem.type === "EXPENSE" ? Math.max(0, prev.totalExpenses - val) : prev.totalExpenses,
+                savings: deletedItem.type === "INCOME" ? prev.savings - val : prev.savings + val,
+                totalTransactions: Math.max(0, prev.totalTransactions - 1),
+            }));
+        }
+        toast.success("Transaction deleted successfully");
+
         try {
             await deleteExpense(id);
-            toast.success("Transaction deleted successfully");
             refreshDashboard();
             fetchAIInsights();
         } catch (err) {
             console.error(err);
-            toast.error("Failed to delete transaction.");
+            toast.error("Failed to delete transaction. Reverting...");
+            setExpenses(previousExpenses);
+            setDashboardData(previousDashboard);
         }
     };
 

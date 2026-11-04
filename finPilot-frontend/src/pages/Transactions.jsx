@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { Search, Filter, ArrowUpRight, ArrowDownRight, Layers, Trash2 } from "lucide-react";
+import { Search, Layers, ArrowUpRight, ArrowDownRight, Trash2, Check, CheckSquare, Square, X, AlertTriangle } from "lucide-react";
 
 import SectionTitle from "../components/ui/SectionTitle";
 import ExpenseCard from "../components/ExpenseCard";
-import { getExpenses, deleteExpense } from "../services/ExpenseService";
+import { getExpenses, deleteExpense, batchDeleteExpenses } from "../services/ExpenseService";
 
 function Transactions() {
     const [expenses, setExpenses] = useState([]);
     const [search, setSearch] = useState("");
     const [typeFilter, setTypeFilter] = useState("ALL");
     const [sortBy, setSortBy] = useState("NEWEST");
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [isDeletingBulk, setIsDeletingBulk] = useState(false);
 
     const fetchExpenses = async () => {
         try {
@@ -26,14 +28,70 @@ function Transactions() {
         fetchExpenses();
     }, []);
 
+    // Instant Optimistic Single Delete (Zero Lag, Zero Refresh)
     const handleDelete = async (id) => {
+        const previousExpenses = [...expenses];
+        const previousSelected = [...selectedIds];
+
+        // 1. Immediately remove from UI (Optimistic Update)
+        setExpenses((prev) => prev.filter((e) => e.id !== id));
+        setSelectedIds((prev) => prev.filter((item) => item !== id));
+        toast.success("Transaction deleted");
+
         try {
+            // 2. Call backend in background
             await deleteExpense(id);
-            toast.success("Transaction deleted successfully");
-            fetchExpenses();
         } catch (error) {
             console.error("Delete error:", error);
-            toast.error("Failed to delete transaction");
+            toast.error("Failed to delete transaction. Reverting...");
+            // Revert state on failure
+            setExpenses(previousExpenses);
+            setSelectedIds(previousSelected);
+        }
+    };
+
+    // Instant Optimistic Bulk Delete
+    const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+
+        const count = selectedIds.length;
+        const toDelete = [...selectedIds];
+        const previousExpenses = [...expenses];
+
+        // 1. Immediately remove all selected items from UI
+        setExpenses((prev) => prev.filter((e) => !toDelete.includes(e.id)));
+        setSelectedIds([]);
+        toast.success(`${count} transaction${count > 1 ? "s" : ""} deleted`);
+
+        try {
+            setIsDeletingBulk(true);
+            await batchDeleteExpenses(toDelete);
+        } catch (error) {
+            console.error("Bulk delete error:", error);
+            toast.error("Some transactions could not be deleted. Re-syncing...");
+            fetchExpenses();
+        } finally {
+            setIsDeletingBulk(false);
+        }
+    };
+
+    // Selection toggle for individual transaction
+    const handleToggleSelect = (id) => {
+        setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+        );
+    };
+
+    // Select All / Deselect All visible transactions
+    const handleToggleSelectAll = () => {
+        const visibleIds = filteredExpenses.map((e) => e.id);
+        const allSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedIds.includes(id));
+
+        if (allSelected) {
+            setSelectedIds((prev) => prev.filter((id) => !visibleIds.includes(id)));
+        } else {
+            const combined = Array.from(new Set([...selectedIds, ...visibleIds]));
+            setSelectedIds(combined);
         }
     };
 
@@ -86,11 +144,15 @@ function Transactions() {
         return data;
     }, [expenses, search, typeFilter, sortBy]);
 
+    const isAllVisibleSelected =
+        filteredExpenses.length > 0 &&
+        filteredExpenses.every((e) => selectedIds.includes(e.id));
+
     return (
-        <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto w-full min-w-0">
+        <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto w-full min-w-0 pb-16">
             <SectionTitle
                 title="Transactions Ledger"
-                subtitle="Search, filter, and audit all recorded financial activities."
+                subtitle="Search, filter, select, and manage all recorded financial activities."
             />
 
             {/* Quick Metrics Bar */}
@@ -148,10 +210,11 @@ function Transactions() {
                             <button
                                 key={t}
                                 onClick={() => setTypeFilter(t)}
-                                className={`px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer flex-1 sm:flex-initial text-center active:scale-95 ${typeFilter === t
+                                className={`px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer flex-1 sm:flex-initial text-center active:scale-95 ${
+                                    typeFilter === t
                                         ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
                                         : "text-zinc-400 hover:text-white"
-                                    }`}
+                                }`}
                             >
                                 {t === "ALL" ? "All" : t === "INCOME" ? "Income" : "Expense"}
                             </button>
@@ -172,6 +235,56 @@ function Transactions() {
                 </div>
             </div>
 
+            {/* Selection Toolbar (Select All & Bulk Delete Bar) */}
+            {filteredExpenses.length > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 px-4 py-2.5 backdrop-blur-sm min-w-0">
+                    <label className="flex items-center gap-2.5 text-xs font-medium text-zinc-300 cursor-pointer select-none">
+                        <div
+                            onClick={handleToggleSelectAll}
+                            className={`flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md border transition-all ${
+                                isAllVisibleSelected
+                                    ? "bg-emerald-500 border-emerald-400 text-black shadow-sm"
+                                    : selectedIds.length > 0
+                                    ? "bg-emerald-500/30 border-emerald-500 text-emerald-400"
+                                    : "border-zinc-700 bg-zinc-950/60 hover:border-zinc-500 text-transparent"
+                            }`}
+                        >
+                            <Check size={11} strokeWidth={3.5} className={selectedIds.length > 0 ? "opacity-100" : "opacity-0"} />
+                        </div>
+                        <span>
+                            Select All <span className="text-zinc-500">({filteredExpenses.length})</span>
+                        </span>
+                    </label>
+
+                    {selectedIds.length > 0 && (
+                        <div className="flex items-center gap-2 sm:gap-3 ml-auto animate-fade-in">
+                            <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+                                {selectedIds.length} Selected
+                            </span>
+
+                            <button
+                                type="button"
+                                onClick={handleBulkDelete}
+                                disabled={isDeletingBulk}
+                                className="flex items-center gap-1.5 rounded-xl border border-rose-500/40 bg-rose-500/15 px-3 py-1.5 text-xs font-bold text-rose-300 hover:bg-rose-500 hover:text-white transition-all shadow-md shadow-rose-950/40 cursor-pointer active:scale-95 disabled:opacity-50"
+                            >
+                                <Trash2 size={13} />
+                                <span>Delete Selected ({selectedIds.length})</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setSelectedIds([])}
+                                className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition cursor-pointer"
+                                title="Clear selection"
+                            >
+                                <X size={13} />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* Transactions List */}
             {filteredExpenses.length === 0 ? (
                 <div className="rounded-3xl border border-dashed border-zinc-800 bg-zinc-900/30 p-10 sm:p-16 text-center">
@@ -184,6 +297,8 @@ function Transactions() {
                         <ExpenseCard
                             key={expense.id}
                             expense={expense}
+                            isSelected={selectedIds.includes(expense.id)}
+                            onToggleSelect={handleToggleSelect}
                             handleEdit={() => {
                                 window.location.href = "/dashboard";
                             }}

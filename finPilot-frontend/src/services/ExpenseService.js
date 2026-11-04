@@ -72,6 +72,15 @@ export const deleteExpense = (id) => {
     return axios.delete(`${BASE_URL}/expenses/${id}`, authHeaders());
 };
 
+export const batchDeleteExpenses = async (ids) => {
+    if (!ids || ids.length === 0) return;
+    try {
+        return await axios.post(`${BASE_URL}/expenses/batch-delete`, ids, authHeaders());
+    } catch (err) {
+        return await Promise.all(ids.map((id) => deleteExpense(id)));
+    }
+};
+
 // Dashboard API
 export const getDashboardSummary = () => {
     return axios.get(`${BASE_URL}/dashboard`, authHeaders());

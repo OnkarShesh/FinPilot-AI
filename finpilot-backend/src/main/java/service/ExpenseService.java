@@ -82,4 +82,16 @@ public class ExpenseService {
 
         expenseRepository.delete(expense);
     }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void batchDeleteExpenses(List<String> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        User user = getCurrentUser();
+        for (String id : ids) {
+            Expense expense = expenseRepository.findById(id).orElse(null);
+            if (expense != null && expense.getUser().getId().equals(user.getId())) {
+                expenseRepository.delete(expense);
+            }
+        }
+    }
 }
