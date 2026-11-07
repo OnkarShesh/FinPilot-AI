@@ -15,3 +15,4 @@ public interface DebtPersonRepository extends JpaRepository<DebtPerson, String> 
 
     Optional<DebtPerson> findByUserAndNameIgnoreCase(User user, String name);
 }
+

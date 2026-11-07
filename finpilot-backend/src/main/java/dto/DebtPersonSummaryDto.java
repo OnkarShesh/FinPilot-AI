@@ -24,3 +24,4 @@ public class DebtPersonSummaryDto {
     private LocalDate lastDate;
     private Instant lastCreatedAt;
 }
+

@@ -18,3 +18,4 @@ public class KhataOverviewDto {
     private BigDecimal netBalance;       // totalReceivable - totalPayable
     private List<DebtPersonSummaryDto> persons;
 }
+

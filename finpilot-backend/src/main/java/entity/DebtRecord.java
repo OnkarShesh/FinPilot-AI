@@ -73,3 +73,4 @@ public class DebtRecord {
         this.updatedAt = Instant.now();
     }
 }
+

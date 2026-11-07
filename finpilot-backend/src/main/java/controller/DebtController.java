@@ -52,3 +52,4 @@ public class DebtController {
         return ResponseEntity.ok(Map.of("message", "Record deleted successfully"));
     }
 }
+

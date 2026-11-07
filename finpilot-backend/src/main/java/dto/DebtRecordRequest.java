@@ -21,3 +21,4 @@ public class DebtRecordRequest {
     private String notes;
     private LocalDate date;
 }
+

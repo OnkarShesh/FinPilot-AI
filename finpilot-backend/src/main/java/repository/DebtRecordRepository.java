@@ -20,3 +20,4 @@ public interface DebtRecordRepository extends JpaRepository<DebtRecord, String> 
 
     List<DebtRecord> findByPerson(DebtPerson person);
 }
+

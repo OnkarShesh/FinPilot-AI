@@ -24,3 +24,4 @@ public class DebtRecordDto {
     private LocalDate date;
     private Instant createdAt;
 }
+

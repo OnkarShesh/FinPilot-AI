@@ -18,12 +18,27 @@ public class WhatsAppWebhookController {
     private final WhatsAppService whatsAppService;
     private final ObjectMapper objectMapper;
 
+    // Cache of processed message IDs (wamid) to eliminate Meta duplicate retry replies
+    private static final java.util.concurrent.ConcurrentHashMap<String, Long> processedMessageCache = new java.util.concurrent.ConcurrentHashMap<>();
+
     @Value("${whatsapp.verify-token:finpilot_secret_token_2026}")
     private String verifyToken;
 
     public WhatsAppWebhookController(WhatsAppService whatsAppService, ObjectMapper objectMapper) {
         this.whatsAppService = whatsAppService;
         this.objectMapper = objectMapper;
+    }
+
+    /**
+     * Health check endpoint for self-pings and uptime monitors to keep Render service warm 24/7.
+     */
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, Object>> health() {
+        return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "service", "FinPilot WhatsApp Webhook",
+                "timestamp", System.currentTimeMillis()
+        ));
     }
 
     /**
@@ -48,50 +63,70 @@ public class WhatsAppWebhookController {
     /**
      * Official Meta WhatsApp Cloud API Event Notification Webhook.
      * Receives incoming messages from users and parses them via FinPilot AI.
+     * Includes strict deduplication so Meta retries never trigger multiple replies.
      */
     @PostMapping
     public ResponseEntity<String> handleIncomingWebhook(@RequestBody String rawPayload) {
-        // Asynchronously process incoming webhook payload so Meta receives 200 OK in < 10ms
-        java.util.concurrent.CompletableFuture.runAsync(() -> {
-            try {
-                JsonNode root = objectMapper.readTree(rawPayload);
-                JsonNode entryNode = root.path("entry");
+        try {
+            JsonNode root = objectMapper.readTree(rawPayload);
+            JsonNode entryNode = root.path("entry");
 
-                if (entryNode.isArray()) {
-                    for (JsonNode entry : entryNode) {
-                        JsonNode changes = entry.path("changes");
-                        if (changes.isArray()) {
-                            for (JsonNode change : changes) {
-                                JsonNode value = change.path("value");
-                                String recipientPhoneId = value.path("metadata").path("phone_number_id").asText(null);
-                                JsonNode messages = value.path("messages");
+            if (entryNode.isArray()) {
+                for (JsonNode entry : entryNode) {
+                    JsonNode changes = entry.path("changes");
+                    if (changes.isArray()) {
+                        for (JsonNode change : changes) {
+                            JsonNode value = change.path("value");
+                            String recipientPhoneId = value.path("metadata").path("phone_number_id").asText(null);
+                            JsonNode messages = value.path("messages");
 
-                                if (messages.isArray() && !messages.isEmpty()) {
-                                    for (JsonNode msg : messages) {
-                                        String from = msg.path("from").asText();
-                                        String type = msg.path("type").asText();
-                                        long msgTimestamp = msg.path("timestamp").asLong(0);
+                            if (messages.isArray() && !messages.isEmpty()) {
+                                for (JsonNode msg : messages) {
+                                    String messageId = msg.path("id").asText(null);
 
-                                        if ("text".equalsIgnoreCase(type)) {
-                                            String textBody = msg.path("text").path("body").asText();
-                                            System.out.println("[WhatsApp Received Async] From: " + from + " | Timestamp: " + msgTimestamp + " | To Phone ID: " + recipientPhoneId + " | Body: " + textBody);
-                                            whatsAppService.processIncomingMessage(from, textBody, recipientPhoneId, msgTimestamp);
-                                        } else {
-                                            // Non-text message (audio, document, sticker, etc.)
-                                            whatsAppService.sendWhatsAppReply(from, "👋 *FinPilot AI*: Please send your expense or income as text (e.g. _Paid 450 for swiggy_ or _Salary 50000 credited_).", recipientPhoneId);
+                                    // Deduplicate: If Meta retries this exact message, ignore it!
+                                    if (messageId != null && !messageId.isBlank()) {
+                                        long now = System.currentTimeMillis();
+                                        // Clean older than 30 minutes
+                                        processedMessageCache.entrySet().removeIf(e -> (now - e.getValue()) > 1800000L);
+
+                                        if (processedMessageCache.putIfAbsent(messageId, now) != null) {
+                                            System.out.println("[WhatsApp Deduplication] Dropping duplicate Meta retry for message ID: " + messageId);
+                                            continue;
                                         }
+                                    }
+
+                                    String from = msg.path("from").asText();
+                                    String type = msg.path("type").asText();
+                                    long msgTimestamp = msg.path("timestamp").asLong(0);
+
+                                    if ("text".equalsIgnoreCase(type)) {
+                                        String textBody = msg.path("text").path("body").asText();
+                                        System.out.println("[WhatsApp Dispatching] From: " + from + " | ID: " + messageId + " | Body: " + textBody);
+                                        java.util.concurrent.CompletableFuture.runAsync(() -> {
+                                            try {
+                                                whatsAppService.processIncomingMessage(from, textBody, recipientPhoneId, msgTimestamp);
+                                            } catch (Exception ex) {
+                                                System.err.println("Error processing message asynchronously: " + ex.getMessage());
+                                            }
+                                        });
+                                    } else {
+                                        // Non-text message
+                                        java.util.concurrent.CompletableFuture.runAsync(() -> {
+                                            whatsAppService.sendWhatsAppReply(from, "👋 *FinPilot AI*: Please send your expense or income as text (e.g. _Paid 450 for swiggy_ or _Salary 50000 credited_).", recipientPhoneId);
+                                        });
                                     }
                                 }
                             }
                         }
                     }
                 }
-            } catch (Exception e) {
-                System.err.println("Error processing WhatsApp webhook asynchronously: " + e.getMessage());
             }
-        });
+        } catch (Exception e) {
+            System.err.println("Error processing WhatsApp webhook: " + e.getMessage());
+        }
 
-        // Always return 200 OK immediately to Meta to prevent webhook timeouts and retry drops
+        // Always return 200 OK immediately to Meta (< 5ms) to prevent webhook timeouts
         return ResponseEntity.ok("EVENT_RECEIVED");
     }
 
