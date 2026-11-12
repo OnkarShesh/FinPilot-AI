@@ -25,7 +25,7 @@ export default function WhatsAppModal({ isOpen, onClose, onTransactionLogged }) 
     const [chatHistory, setChatHistory] = useState([
         {
             sender: "bot",
-            text: "👋 *Namaste! FinPilot WhatsApp Copilot is active.*\n\nSend any expense or income in plain English or Hinglish, e.g.:\n• _Paid 450 for swiggy pizza_\n• _bhai petrol me 500 dale_\n• _Got 65000 salary credited_",
+            text: "👋 *Welcome! FinPilot WhatsApp Copilot is active.*\n\nSend any expense, income or debt record, e.g.:\n• _Paid 450 for swiggy pizza_\n• _Petrol 500_\n• _Got 65000 salary credited_\n• _500 Rupam (lent money)_",
             time: "Live 24x7"
         }
     ]);
@@ -35,7 +35,7 @@ export default function WhatsAppModal({ isOpen, onClose, onTransactionLogged }) 
     const samplePrompts = [
         "Paid 450 for swiggy pizza dinner",
         "Uber ride to office 240 rs",
-        "bhai 65000 salary aayi hai bank me",
+        "Received 65000 salary in bank",
         "Bought groceries from blinkit 680"
     ];
 

@@ -385,7 +385,7 @@ function Dashboard() {
                 />
             </div>
 
-            {/* Khata Friends Ledger Quick Banner */}
+            {/* Debts & Loans Friends Ledger Quick Banner */}
             <div className="rounded-2xl border border-zinc-800 bg-gradient-to-r from-zinc-900 via-zinc-900/80 to-zinc-950 p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
                 <div className="flex items-center gap-3 min-w-0">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -393,13 +393,13 @@ function Dashboard() {
                     </div>
                     <div className="min-w-0">
                         <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
-                            Khata (Hisab-Kitab)
+                            Debts & Loans Ledger
                             <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30">
                                 WhatsApp Synced
                             </span>
                         </h4>
                         <p className="text-[11px] sm:text-xs text-zinc-400 truncate">
-                            Track friends lending, debts & WhatsApp hisab (e.g. "500 Rupam" or "-400 Rupam")
+                            Track money lent, borrowed & peer debts via WhatsApp or web (e.g. "500 Rupam" or "-400 Rupam")
                         </p>
                     </div>
                 </div>
@@ -407,7 +407,7 @@ function Dashboard() {
                     to="/khata"
                     className="shrink-0 inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-2 rounded-xl transition-all"
                 >
-                    <span>Open Khata</span>
+                    <span>View Debts</span>
                     <ArrowRight size={13} />
                 </Link>
             </div>

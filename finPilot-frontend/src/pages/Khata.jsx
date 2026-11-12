@@ -51,7 +51,7 @@ export default function Khata() {
     const [formData, setFormData] = useState({
         personName: "",
         amount: "",
-        type: "YOU_GAVE", // YOU_GAVE = Lena hai, YOU_GOT = Dena hai / Mile
+        type: "YOU_GAVE", // YOU_GAVE = Receivable, YOU_GOT = Payable / Repaid
         notes: "",
         date: new Date().toISOString().split("T")[0]
     });
@@ -62,7 +62,7 @@ export default function Khata() {
             const res = await getKhataOverview();
             setOverview(res.data || { totalReceivable: 0, totalPayable: 0, netBalance: 0, persons: [] });
         } catch (err) {
-            console.error("Failed to load Khata overview:", err);
+            console.error("Failed to load debt overview:", err);
         } finally {
             setLoading(false);
         }
@@ -88,7 +88,7 @@ export default function Khata() {
 
     const handleSettle = async (personId, e) => {
         if (e) e.stopPropagation();
-        if (!window.confirm("Kya aap pura hisab settle (₹0) karna chahte hain?")) return;
+        if (!window.confirm("Are you sure you want to settle this account balance to ₹0?")) return;
         try {
             await settlePersonDebt(personId);
             await fetchOverview();
@@ -103,7 +103,7 @@ export default function Khata() {
 
     const handleDeletePerson = async (personId, e) => {
         if (e) e.stopPropagation();
-        if (!window.confirm("Kya aap is vyakti aur inke saare hisab ko delete karna chahte hain?")) return;
+        if (!window.confirm("Are you sure you want to delete this person and all associated debt records?")) return;
         try {
             await deleteDebtPerson(personId);
             if (selectedPerson?.id === personId) setSelectedPerson(null);
@@ -129,7 +129,7 @@ export default function Khata() {
     const handleAddSubmit = async (e) => {
         e.preventDefault();
         if (!formData.personName.trim() || !formData.amount || Number(formData.amount) <= 0) {
-            alert("Kripya person ka naam aur valid amount dalein");
+            alert("Please enter a valid person name and positive amount");
             return;
         }
 
@@ -183,8 +183,8 @@ export default function Khata() {
             {/* 1. Header & Actions */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <SectionTitle
-                    title="Khata (Hisab-Kitab)"
-                    subtitle="Track friends lending, debts & who owes you what with WhatsApp AI sync."
+                    title="Debt & Lending Ledger"
+                    subtitle="Track money lent, borrowed & peer debts with automatic WhatsApp AI sync."
                 />
                 <button
                     onClick={() => {
@@ -200,7 +200,7 @@ export default function Khata() {
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2.5 text-sm font-semibold text-black shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-500 transition-all cursor-pointer shrink-0"
                 >
                     <Plus size={16} strokeWidth={2.5} />
-                    <span>Naya Hisab Jodein</span>
+                    <span>Add New Record</span>
                 </button>
             </div>
 
@@ -212,18 +212,18 @@ export default function Khata() {
                             <Sparkles size={18} />
                         </div>
                         <div>
-                            <span className="font-semibold text-white">WhatsApp Se Direct Log Karein: </span>
+                            <span className="font-semibold text-white">Log via WhatsApp Instantly: </span>
                             <span className="text-zinc-300">
-                                Kisi bhi vyakti ka hisab bina app khole update karein!
+                                Send a quick text on WhatsApp to update peer balances without opening the app!
                             </span>
                         </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono">
                         <span className="bg-zinc-800/90 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/30">
-                            500 Rupam <span className="text-zinc-400 font-sans">(Aapne diye)</span>
+                            500 Rupam <span className="text-zinc-400 font-sans">(You Lent)</span>
                         </span>
                         <span className="bg-zinc-800/90 text-rose-300 px-2.5 py-1 rounded-lg border border-rose-500/30">
-                            -400 Rupam <span className="text-zinc-400 font-sans">(Usne diye)</span>
+                            -400 Rupam <span className="text-zinc-400 font-sans">(They Paid Back)</span>
                         </span>
                     </div>
                 </div>
@@ -234,7 +234,7 @@ export default function Khata() {
                 {/* Total Receivable */}
                 <div className="rounded-2xl border border-emerald-500/30 bg-zinc-900/60 p-4 sm:p-5 shadow-lg backdrop-blur-sm">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs sm:text-sm font-medium text-zinc-400">Aapko Lena Hai (You will get)</span>
+                        <span className="text-xs sm:text-sm font-medium text-zinc-400">You Are Owed (Receivable)</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
                             <ArrowDownLeft size={16} />
                         </div>
@@ -242,13 +242,13 @@ export default function Khata() {
                     <div className="mt-3 text-2xl sm:text-3xl font-black text-emerald-400">
                         ₹{Number(overview.totalReceivable || 0).toLocaleString("en-IN")}
                     </div>
-                    <div className="mt-1 text-xs text-zinc-500">Logon se wapas aane wala paisa</div>
+                    <div className="mt-1 text-xs text-zinc-500">Money friends and others owe you</div>
                 </div>
 
                 {/* Total Payable */}
                 <div className="rounded-2xl border border-rose-500/30 bg-zinc-900/60 p-4 sm:p-5 shadow-lg backdrop-blur-sm">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs sm:text-sm font-medium text-zinc-400">Aapko Dena Hai (You owe)</span>
+                        <span className="text-xs sm:text-sm font-medium text-zinc-400">You Owe (Payable)</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-400">
                             <ArrowUpRight size={16} />
                         </div>
@@ -256,13 +256,13 @@ export default function Khata() {
                     <div className="mt-3 text-2xl sm:text-3xl font-black text-rose-400">
                         ₹{Number(overview.totalPayable || 0).toLocaleString("en-IN")}
                     </div>
-                    <div className="mt-1 text-xs text-zinc-500">Aapko jo chukana hai</div>
+                    <div className="mt-1 text-xs text-zinc-500">Money you need to pay back</div>
                 </div>
 
                 {/* Net Balance */}
                 <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 sm:p-5 shadow-lg backdrop-blur-sm">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs sm:text-sm font-medium text-zinc-400">Net Khata Balance</span>
+                        <span className="text-xs sm:text-sm font-medium text-zinc-400">Net Balance</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/10 text-sky-400">
                             <ArrowRightLeft size={16} />
                         </div>
@@ -274,7 +274,7 @@ export default function Khata() {
                         ₹{Number(overview.netBalance || 0).toLocaleString("en-IN")}
                     </div>
                     <div className="mt-1 text-xs text-zinc-500">
-                        {Number(overview.netBalance) >= 0 ? "In your favor (Fayde me)" : "You owe more overall"}
+                        {Number(overview.netBalance) > 0 ? "Net positive (Others owe you)" : Number(overview.netBalance) < 0 ? "Net negative (You owe more overall)" : "All balances settled"}
                     </div>
                 </div>
             </div>
@@ -285,7 +285,7 @@ export default function Khata() {
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={16} />
                     <input
                         type="text"
-                        placeholder="Person ka naam search karein (e.g. Rupam)..."
+                        placeholder="Search by person name (e.g. Rupam)..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="w-full rounded-xl border border-zinc-800 bg-zinc-900/70 pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
@@ -294,9 +294,9 @@ export default function Khata() {
 
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 text-xs font-medium">
                     {[
-                        { key: "ALL", label: "Sabhi" },
-                        { key: "RECEIVABLE", label: "Lena Hai (+)" },
-                        { key: "PAYABLE", label: "Dena Hai (-)" },
+                        { key: "ALL", label: "All" },
+                        { key: "RECEIVABLE", label: "Receivable (+)" },
+                        { key: "PAYABLE", label: "Payable (-)" },
                         { key: "SETTLED", label: "Settled (₹0)" }
                     ].map((tab) => (
                         <button
@@ -318,14 +318,14 @@ export default function Khata() {
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-400">
                     <RefreshCw className="animate-spin text-emerald-400" size={32} />
-                    <p className="mt-3 text-sm">Khata ledger load ho raha hai...</p>
+                    <p className="mt-3 text-sm">Loading debt records...</p>
                 </div>
             ) : filteredPersons.length === 0 ? (
                 <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-10 text-center text-zinc-400">
                     <Users size={40} className="mx-auto text-zinc-600 mb-3" />
-                    <h3 className="text-base font-semibold text-white">Koi Hisab Nahi Mila</h3>
+                    <h3 className="text-base font-semibold text-white">No Debt Records Found</h3>
                     <p className="mt-1 text-xs text-zinc-500 max-w-sm mx-auto">
-                        Aap WhatsApp se message bhej kar (e.g. "500 Rupam") ya upar "Naya Hisab Jodein" button se entry start kar sakte hain.
+                        Send a WhatsApp message (e.g. "500 Rupam") or click "Add New Record" above to start tracking.
                     </p>
                 </div>
             ) : (
@@ -387,7 +387,7 @@ export default function Khata() {
                                                 ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
                                                 : "bg-zinc-800 text-zinc-400 border border-zinc-700"
                                         }`}>
-                                            {isReceivable ? "Lena Hai" : isPayable ? "Dena Hai" : "Settled"}
+                                            {isReceivable ? "You Get" : isPayable ? "You Owe" : "Settled"}
                                         </span>
                                     </div>
                                 </div>
@@ -395,19 +395,19 @@ export default function Khata() {
                                 {/* Summary breakdown */}
                                 <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400">
                                     <div>
-                                        <span className="text-zinc-500">Diye: </span>
-                                        <span className="font-semibold text-zinc-300">₹{Number(person.totalGiven || 0)}</span>
+                                        <span className="text-zinc-500">You Gave: </span>
+                                        <span className="font-semibold text-zinc-300">₹{Number(person.totalGiven || 0).toLocaleString("en-IN")}</span>
                                     </div>
                                     <div>
-                                        <span className="text-zinc-500">Mile: </span>
-                                        <span className="font-semibold text-zinc-300">₹{Number(person.totalReceived || 0)}</span>
+                                        <span className="text-zinc-500">You Got: </span>
+                                        <span className="font-semibold text-zinc-300">₹{Number(person.totalReceived || 0).toLocaleString("en-IN")}</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         {!isSettled && (
                                             <button
                                                 onClick={(e) => handleSettle(person.id, e)}
                                                 className="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-2 py-1 rounded-md border border-emerald-500/20 cursor-pointer"
-                                                title="Hisab zero karein"
+                                                title="Settle balance to ₹0"
                                             >
                                                 Settle
                                             </button>
@@ -448,13 +448,13 @@ export default function Khata() {
                                                 : "bg-zinc-800 text-zinc-400"
                                         }`}>
                                             {Number(selectedPerson.netBalance) > 0
-                                                ? `₹${selectedPerson.netBalance} Lena Hai`
+                                                ? `₹${Number(selectedPerson.netBalance).toLocaleString("en-IN")} Receivable`
                                                 : Number(selectedPerson.netBalance) < 0
-                                                ? `₹${Math.abs(selectedPerson.netBalance)} Dena Hai`
+                                                ? `₹${Math.abs(Number(selectedPerson.netBalance)).toLocaleString("en-IN")} Payable`
                                                 : "Settled"}
                                         </span>
                                     </h3>
-                                    <p className="text-xs text-zinc-400">Complete transaction timeline & passbook</p>
+                                    <p className="text-xs text-zinc-400">Complete transaction timeline & history</p>
                                 </div>
                             </div>
                             <button
@@ -467,14 +467,14 @@ export default function Khata() {
 
                         {/* Modal Quick Actions */}
                         <div className="flex items-center justify-between border-b border-zinc-800/80 px-5 py-3 bg-zinc-900/20 text-xs">
-                            <span className="text-zinc-400">Total Entries: {historyList.length}</span>
+                            <span className="text-zinc-400">Total Records: {historyList.length}</span>
                             <div className="flex items-center gap-2">
                                 {Number(selectedPerson.netBalance) !== 0 && (
                                     <button
                                         onClick={() => handleSettle(selectedPerson.id)}
                                         className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 px-3 py-1 font-semibold text-emerald-400 hover:bg-emerald-500/25 transition-all"
                                     >
-                                        <CheckCircle2 size={13} /> Settle Full Account
+                                        <CheckCircle2 size={13} /> Settle Account
                                     </button>
                                 )}
                                 <button
@@ -490,7 +490,7 @@ export default function Khata() {
                                     }}
                                     className="inline-flex items-center gap-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 px-3 py-1 font-semibold text-white transition-all"
                                 >
-                                    <Plus size={13} /> Nayi Entry
+                                    <Plus size={13} /> New Record
                                 </button>
                             </div>
                         </div>
@@ -500,11 +500,11 @@ export default function Khata() {
                             {historyLoading ? (
                                 <div className="py-12 text-center text-zinc-400">
                                     <RefreshCw className="animate-spin mx-auto text-emerald-400" size={24} />
-                                    <p className="mt-2 text-xs">Loading passbook...</p>
+                                    <p className="mt-2 text-xs">Loading history...</p>
                                 </div>
                             ) : historyList.length === 0 ? (
                                 <div className="py-12 text-center text-zinc-500 text-xs">
-                                    Koi entries nahi hain.
+                                    No records found.
                                 </div>
                             ) : (
                                 historyList.map((item) => {
@@ -521,7 +521,7 @@ export default function Khata() {
                                                 </div>
                                                 <div>
                                                     <div className="text-sm font-semibold text-white">
-                                                        {isGave ? "Aapne diye (Lena hai)" : "Usne diye (Mile / Wapas)"}
+                                                        {isGave ? "You Gave (Lent)" : "You Received (Returned / Borrowed)"}
                                                     </div>
                                                     <div className="flex items-center gap-2 text-xs text-zinc-400 mt-0.5">
                                                         <span className="flex items-center gap-1 text-[11px]">
@@ -573,7 +573,7 @@ export default function Khata() {
                         <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
                             <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                 <Users size={18} className="text-emerald-400" />
-                                Naya Hisab Jodein
+                                Add Debt Record
                             </h3>
                             <button
                                 onClick={() => setIsAddModalOpen(false)}
@@ -586,12 +586,12 @@ export default function Khata() {
                         <form onSubmit={handleAddSubmit} className="mt-5 space-y-4">
                             <div>
                                 <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                                    Vyakti ka Naam (Person Name)
+                                    Person Name
                                 </label>
                                 <input
                                     type="text"
                                     required
-                                    placeholder="e.g. Rupam, Rahul, Aman..."
+                                    placeholder="e.g. Rupam, Rahul, Sarah..."
                                     value={formData.personName}
                                     onChange={(e) => setFormData({ ...formData, personName: e.target.value })}
                                     className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
@@ -628,7 +628,7 @@ export default function Khata() {
                                                 : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700"
                                         }`}
                                     >
-                                        Aapne Diye (+ Lena hai)
+                                        You Gave (They Owe)
                                     </button>
                                     <button
                                         type="button"
@@ -639,7 +639,7 @@ export default function Khata() {
                                                 : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700"
                                         }`}
                                     >
-                                        Usne Diye (- Lautaye)
+                                        You Got (Repaid / Borrowed)
                                     </button>
                                 </div>
                             </div>
@@ -682,7 +682,7 @@ export default function Khata() {
                                     disabled={submitting}
                                     className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 py-2.5 text-xs font-bold text-black shadow-lg shadow-emerald-500/20 hover:from-emerald-400 transition-all cursor-pointer disabled:opacity-50"
                                 >
-                                    {submitting ? "Save ho raha hai..." : "Save Entry"}
+                                    {submitting ? "Saving..." : "Save Record"}
                                 </button>
                             </div>
                         </form>
@@ -692,4 +692,3 @@ export default function Khata() {
         </div>
     );
 }
-

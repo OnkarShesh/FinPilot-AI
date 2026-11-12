@@ -38,11 +38,11 @@ const navGroups = [
                 description: "Trends & visual stats"
             },
             {
-                name: "Khata (Hisab)",
+                name: "Debts & Loans",
                 path: "/khata",
                 icon: Users,
                 badge: "Live",
-                description: "Friends & loans ledger"
+                description: "Friends & lending tracker"
             },
         ]
     },
