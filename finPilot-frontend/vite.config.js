@@ -11,7 +11,7 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: process.env.VITE_BACKEND_TARGET || 'https://finpilot-ai-4ygw.onrender.com',
         changeOrigin: true,
         secure: false,
       }
